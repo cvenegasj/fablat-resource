@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WorkshopTutorDAO extends CrudRepository<WorkshopTutor, Integer> {
 
-	Integer countByFabberEmail(String email);
+	Integer countBySubGroupMember_GroupMember_FabberEmail(String email);
 
 	WorkshopTutor findByWorkshopIdAndSubGroupMember_GroupMember_Fabber_Email(Integer idWorkshop, String email);
 

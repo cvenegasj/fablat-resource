@@ -10,7 +10,7 @@ import java.util.List;
 //@Repository
 public class LocationDAOImpl extends GenericDAOImpl<Location, Integer> {
 
-	@Transactional
+/*	@Transactional
 	public List<Location> findByTerm(String term) {
 		List<Location> list = null;
 		list = (List<Location>) entityManager
@@ -23,6 +23,6 @@ public class LocationDAOImpl extends GenericDAOImpl<Location, Integer> {
 				.getResultList();
 		
 		return list;
-	}
+	}*/
 
 }

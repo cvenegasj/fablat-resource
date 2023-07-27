@@ -10,7 +10,7 @@ import java.util.List;
 //@Repository
 public class ActivityLogDAOImpl extends GenericDAOImpl<ActivityLog, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public List<ActivityLog> findByVisibility() {
 		List<ActivityLog> list = null;
 		list = (List<ActivityLog>) entityManager
@@ -50,6 +50,6 @@ public class ActivityLogDAOImpl extends GenericDAOImpl<ActivityLog, Integer> {
 				.setParameter("idSubGroup", idSubGroup)
 				.getResultList();
 		return list;
-	}
+	}*/
 
 }

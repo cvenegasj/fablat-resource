@@ -11,7 +11,7 @@ public interface SubGroupDAO extends CrudRepository<SubGroup, Integer> {
 
 //	List<SubGroup> findAllOrderedAsc();
 	
-	List<SubGroup> findAllByGroup(Integer idGroup);
+	List<SubGroup> findAllByGroupId(Integer idGroup);
 	
 //	Integer getMembersCount(Integer idSubGroup);
 

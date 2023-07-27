@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 //@Repository
 public class WorkshopTutorDAOImpl extends GenericDAOImpl<WorkshopTutor, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public Integer countByFabberEmail(String email) {
 		Long count = entityManager
 				.createQuery(
@@ -32,5 +32,5 @@ public class WorkshopTutorDAOImpl extends GenericDAOImpl<WorkshopTutor, Integer>
 
 		return e;
 	}
-
+*/
 }

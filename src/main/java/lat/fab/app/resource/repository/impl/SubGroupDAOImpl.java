@@ -10,7 +10,7 @@ import java.util.List;
 //@Repository
 public class SubGroupDAOImpl extends GenericDAOImpl<SubGroup, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public List<SubGroup> findAllOrderedAsc() {
 		List<SubGroup> list = null;
 		
@@ -58,6 +58,6 @@ public class SubGroupDAOImpl extends GenericDAOImpl<SubGroup, Integer> {
 				.getSingleResult();
 		
 		return count.intValue();
-	}
+	}*/
 	
 }

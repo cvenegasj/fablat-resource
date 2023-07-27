@@ -11,7 +11,7 @@ import java.util.List;
 //@Transactional
 public class FabberDAOImpl extends GenericDAOImpl<Fabber, Integer> {
 
-//	@Transactional
+/*//	@Transactional
 	public Fabber findByEmail(String email) {
 		Fabber fabber = null;
 		fabber = (Fabber) entityManager.createQuery("from " + getDomainClassName() + " f where f.email = :email")
@@ -40,6 +40,6 @@ public class FabberDAOImpl extends GenericDAOImpl<Fabber, Integer> {
 				.createQuery("select count(x) from " + getDomainClassName() + " x ")
 				.getSingleResult();
 		return count;
-	}
+	}*/
 	
 }

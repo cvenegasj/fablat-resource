@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/auth/groups")
@@ -141,21 +142,21 @@ public class GroupController {
 		GroupDTO gDTO = convertToDTO(group);
 		
 		// additional properties
-		GroupMember userAsGroupMember = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
-		if (userAsGroupMember != null) {
+		Optional<GroupMember> userAsGroupMember = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
+		if (userAsGroupMember.isPresent()) {
 			gDTO.setAmIMember(true);
-			gDTO.setAmICoordinator(userAsGroupMember.getIsCoordinator());
+			gDTO.setAmICoordinator(userAsGroupMember.get().getIsCoordinator());
 		} else {
 			gDTO.setAmIMember(false);
 		}
 		
 		// group's subgroups
 		List<SubGroupDTO> subGroups = new ArrayList<SubGroupDTO>();
-		for (SubGroup sg : subGroupDAO.findAllByGroup(group.getId())) {
+		for (SubGroup sg : subGroupDAO.findAllByGroupId(group.getId())) {
 			SubGroupDTO sDTO = convertToDTO(sg);
 			sDTO.setMembersCount(subGroupMemberDAO.countDistinctBySubGroupId(sg.getId()));
 			
-			SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(
+			SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(
 					sg.getId(), email);
 			if (userAsSubGroupMember != null) {
 				sDTO.setAmIMember(true);
@@ -185,10 +186,10 @@ public class GroupController {
 		GroupDTO gDTO = convertToDTO(group);
 		
 		// additional properties
-		GroupMember userAsGroupMember = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
-		if (userAsGroupMember != null) {
+		Optional<GroupMember> userAsGroupMember = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
+		if (userAsGroupMember.isPresent()) {
 			gDTO.setAmIMember(true);
-			gDTO.setAmICoordinator(userAsGroupMember.getIsCoordinator());
+			gDTO.setAmICoordinator(userAsGroupMember.get().getIsCoordinator());
 		} else {
 			gDTO.setAmIMember(false);
 		}
@@ -210,7 +211,7 @@ public class GroupController {
         gm.setIsCoordinator(true);
         gm.setNotificationsEnabled(true);
         gm.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
-        gm.setFabber(fabberDAO.findByEmail(email));
+        gm.setFabber(fabberDAO.findByEmail(email).get());
         gm.setGroup(group);
         group.getGroupMembers().add(gm);
         
@@ -279,7 +280,7 @@ public class GroupController {
         Instant now = Instant.now();
         member.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));  
         
-        member.setFabber(fabberDAO.findByEmail(email));
+        member.setFabber(fabberDAO.findByEmail(email).get());
         member.setGroup(group);
 		groupMemberDAO.save(member);
 		
@@ -297,8 +298,8 @@ public class GroupController {
 	@RequestMapping(value = "/{idGroup}/leave/{email}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public void leave(@PathVariable Integer idGroup, @PathVariable String email) {
-		GroupMember member = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
-		groupMemberDAO.save(member);
+		Optional<GroupMember> member = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
+		groupMemberDAO.save(member.get());
 		Group group = groupDAO.findById(idGroup).get();
 		
 		// if the user was the last member, the group disappears
@@ -322,7 +323,7 @@ public class GroupController {
         Instant now = Instant.now();
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setGroup(group);
-        activity.setFabber(member.getFabber());
+        activity.setFabber(member.get().getFabber());
         activityLogDAO.save(activity);
 	}
 	
@@ -356,9 +357,9 @@ public class GroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteMember(
 			@PathVariable Integer idGroup, @PathVariable Integer idGroupMember, @PathVariable String email) {
-		GroupMember me = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
+		Optional<GroupMember> me = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
 		// action only allowed to coordinators
-		if (!me.getIsCoordinator()) {
+		if (!me.get().getIsCoordinator()) {
 			return;
 		}
 		
@@ -405,9 +406,9 @@ public class GroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void nameCoordinator(
 			@PathVariable Integer idGroup, @PathVariable String email, @RequestBody GroupMemberDTO groupMemberDTO) {
-		GroupMember me = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
+		Optional<GroupMember> me = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
 		// action only allowed to coordinators
-		if (!me.getIsCoordinator()) {
+		if (!me.get().getIsCoordinator()) {
 			return;
 		}
 		

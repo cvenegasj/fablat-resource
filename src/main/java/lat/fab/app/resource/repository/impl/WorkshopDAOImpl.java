@@ -11,7 +11,7 @@ import java.util.List;
 //@Repository
 public class WorkshopDAOImpl extends GenericDAOImpl<Workshop, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public List<Workshop> findAllAfterDate(LocalDateTime date) {
 		List<Workshop> list = null;
 		list = (List<Workshop>) entityManager
@@ -36,6 +36,6 @@ public class WorkshopDAOImpl extends GenericDAOImpl<Workshop, Integer> {
 				.getResultList();
 		
 		return list;
-	}
+	}*/
 
 }

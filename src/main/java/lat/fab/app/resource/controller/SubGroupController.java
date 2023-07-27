@@ -18,6 +18,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth/subgroups")
@@ -51,7 +52,7 @@ public class SubGroupController {
 
 		// additional properties
 		SubGroupMember userAsSubGroupMember = subGroupMemberDAO
-				.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+				.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		if (userAsSubGroupMember != null) {
 			sDTO.setAmIMember(true);
 			sDTO.setAmICoordinator(userAsSubGroupMember.getIsCoordinator());
@@ -84,7 +85,7 @@ public class SubGroupController {
 		SubGroupDTO sDTO = convertToDTO(subGroup);
 
 		// additional properties
-		SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+		SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		if (userAsSubGroupMember != null) {
 			sDTO.setAmIMember(true);
 			sDTO.setAmICoordinator(userAsSubGroupMember.getIsCoordinator());
@@ -111,8 +112,8 @@ public class SubGroupController {
 		sgm.setIsCoordinator(true);
 		sgm.setNotificationsEnabled(true);
 		sgm.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
-		GroupMember gm = groupMemberDAO.findByGroupIdAndFabberEmail(subGroupDTO.getGroupId(), email);
-		sgm.setGroupMember(gm);
+		Optional<GroupMember> gm = groupMemberDAO.findByGroupIdAndFabberEmail(subGroupDTO.getGroupId(), email);
+		sgm.setGroupMember(gm.get());
 		sgm.setSubGroup(subGroup);
 		subGroup.getSubGroupMembers().add(sgm);
 		
@@ -132,7 +133,7 @@ public class SubGroupController {
         activity2.setVisibility(Resources.ACTIVITY_VISIBILITY_INTERNAL);
         activity2.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity2.setGroup(groupDAO.findById(subGroupDTO.getGroupId()).get());
-        activity2.setFabber(gm.getFabber());
+        activity2.setFabber(gm.get().getFabber());
 		
 		SubGroup subGroupCreated = subGroupDAO.save(subGroup);
 		activityLogDAO.save(activity);
@@ -170,7 +171,7 @@ public class SubGroupController {
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setGroup(subGroup.getGroup());
         activity.setFabber(
-				groupMemberDAO.findByGroupIdAndFabberEmail(subGroup.getGroup().getId(), email).getFabber());
+				groupMemberDAO.findByGroupIdAndFabberEmail(subGroup.getGroup().getId(), email).get().getFabber());
         
         activityLogDAO.save(activity);
         subGroupDAO.save(subGroup);
@@ -180,7 +181,7 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public void join(@PathVariable Integer idSubGroup, @PathVariable String email) {
 		// check if is already member
-		if (subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email) != null) {
+		if (subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email) != null) {
 			return;
 		}
 		
@@ -193,19 +194,19 @@ public class SubGroupController {
         Instant now = Instant.now();
         member.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));  
         
-        GroupMember gm = groupMemberDAO.findByGroupIdAndFabberEmail(subGroup.getGroup().getId(), email);
+        Optional<GroupMember> gm = groupMemberDAO.findByGroupIdAndFabberEmail(subGroup.getGroup().getId(), email);
         // if user is not member of parent group, we add it
-        if (gm == null) {
-        	gm = new GroupMember();
-        	gm.setIsCoordinator(false);
-        	gm.setNotificationsEnabled(true);
-        	gm.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
-        	gm.setFabber(fabberDAO.findByEmail(email));
-        	gm.setGroup(subGroup.getGroup());
-        	groupMemberDAO.save(gm);
+        if (gm.isEmpty()) {
+			GroupMember gm_ = new GroupMember();
+			gm_.setIsCoordinator(false);
+			gm_.setNotificationsEnabled(true);
+			gm_.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
+			gm_.setFabber(fabberDAO.findByEmail(email).get());
+			gm_.setGroup(subGroup.getGroup());
+        	groupMemberDAO.save(gm_);
         }
       
-        member.setGroupMember(gm);
+        member.setGroupMember(gm.get());
         member.setSubGroup(subGroup);
 		subGroupMemberDAO.save(member);
 		
@@ -223,7 +224,7 @@ public class SubGroupController {
 	@RequestMapping(value = "/{idSubGroup}/leave/{email}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public void leave(@PathVariable Integer idSubGroup, @PathVariable String email) {
-		SubGroupMember member = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+		SubGroupMember member = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		subGroupMemberDAO.delete(member);
 		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
 		
@@ -256,7 +257,7 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void addMember(@PathVariable Integer idSubGroup, @PathVariable String email,
 						  @RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
 		if (!me.getIsCoordinator()) {
 			return;
@@ -278,7 +279,7 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteMember(@PathVariable Integer idSubGroup, @PathVariable String email,
 							 @RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
 		if (!me.getIsCoordinator()) {
 			return;
@@ -292,7 +293,7 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void nameCoordinator(@PathVariable Integer idSubGroup, @PathVariable String email,
 								@RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndFabberEmail(idSubGroup, email);
+		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
 		if (!me.getIsCoordinator()) {
 			return;

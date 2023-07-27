@@ -9,11 +9,11 @@ import java.util.List;
 @Repository
 public interface SubGroupMemberDAO extends CrudRepository<SubGroupMember, Integer> {
 	
-	Integer countByFabberEmailAndIsCoordinatorIs(String email, boolean isCoordinator);
+	Integer countByGroupMember_Fabber_EmailAndIsCoordinatorIs(String email, boolean isCoordinator);
 
 //	Integer countAllByFabberAsCollaborator(String email);
 
-	SubGroupMember findBySubGroupIdAndFabberEmail(Integer idSubGroup, String email);
+	SubGroupMember findBySubGroupIdAndGroupMemberFabberEmail(Integer idSubGroup, String email);
 	
 	List<SubGroupMember> findBySubGroup_Id(Integer idSubGroup); // TODO
 	

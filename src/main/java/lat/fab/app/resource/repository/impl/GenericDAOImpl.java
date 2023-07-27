@@ -12,9 +12,9 @@ import java.util.List;
 
 //@Repository
 //@Transactional
-public abstract class GenericDAOImpl<T, ID extends Serializable> implements GenericDAO<T, ID> {
+public abstract class GenericDAOImpl<T, ID extends Serializable> {
 
-	@PersistenceContext
+	/*@PersistenceContext
 	protected EntityManager entityManager;
 	private Class<T> domainClass;
 
@@ -53,6 +53,6 @@ public abstract class GenericDAOImpl<T, ID extends Serializable> implements Gene
 //	@Transactional
 	public void makeTransient(T entity) {
 		entityManager.remove(entity);
-	}
+	}*/
 
 }

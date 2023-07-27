@@ -23,7 +23,7 @@ public class ActivityController {
 	@RequestMapping(value = "/find-all-external", method = RequestMethod.GET)
 	public List<ActivityLogDTO> findAllExternal() {
 		// Single list with all types of activities
-		List<ActivityLogDTO> returnList = new ArrayList<ActivityLogDTO>();
+		List<ActivityLogDTO> returnList = new ArrayList<>();
 		
 		for (ActivityLog a : activityLogDAO.findByVisibility("EXTERNAL")) {
 			ActivityLogDTO aDTO = convertToDTO(a);
@@ -68,6 +68,9 @@ public class ActivityController {
 		aDTO.setSubGroupId(a.getSubGroup() != null ? a.getSubGroup().getId() : null);
 		aDTO.setSubGroupName(a.getSubGroup() != null ? a.getSubGroup().getName() : null);
 		aDTO.setFabberId(a.getFabber().getId());
+		aDTO.setFabberName(a.getFabber().getFirstName() == null || a.getFabber().getLastName() == null
+				? a.getFabber().getName()
+				: null);
 		aDTO.setFabberFirstName(a.getFabber().getFirstName());
 		aDTO.setFabberLastName(a.getFabber().getLastName());
 		return aDTO;

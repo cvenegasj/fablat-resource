@@ -10,7 +10,7 @@ import java.util.List;
 //@Repository
 public class SubGroupMemberDAOImpl extends GenericDAOImpl<SubGroupMember, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public Integer countByFabberEmailAndIsCoordinatorIs(String email, boolean isCoordinator) {
 		Long count = entityManager
 				.createQuery(
@@ -94,5 +94,5 @@ public class SubGroupMemberDAOImpl extends GenericDAOImpl<SubGroupMember, Intege
 
 		return list;
 	}
-	
+	*/
 }

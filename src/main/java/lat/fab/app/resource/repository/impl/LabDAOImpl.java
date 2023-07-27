@@ -10,7 +10,7 @@ import java.util.List;
 //@Repository
 public class LabDAOImpl extends GenericDAOImpl<Lab, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public List<Lab> findByTerm(String term) {
 		List<Lab> list = null;
 		list = (List<Lab>) entityManager
@@ -19,6 +19,6 @@ public class LabDAOImpl extends GenericDAOImpl<Lab, Integer> {
 				.getResultList();
 
 		return list;
-	}
+	}*/
 	
 }

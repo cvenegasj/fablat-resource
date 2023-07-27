@@ -95,7 +95,7 @@ public class WorkshopController {
         workshop.setSubGroup(subGroupDAO.findById(workshopDTO.getSubGroupId()).get());
         // Creator
         WorkshopTutor wt = new WorkshopTutor();
-        wt.setSubGroupMember(subGroupMemberDAO.findBySubGroupIdAndFabberEmail(workshopDTO.getSubGroupId(), email));
+        wt.setSubGroupMember(subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(workshopDTO.getSubGroupId(), email));
         wt.setWorkshop(workshop);
         workshop.getWorkshopTutors().add(wt);
         

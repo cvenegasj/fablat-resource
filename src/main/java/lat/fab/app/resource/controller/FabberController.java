@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,16 +34,16 @@ public class FabberController {
 	public FabberDTO createOrUpdateUser(@AuthenticationPrincipal JwtAuthenticationToken jwtAuthToken) {
 		log.info("createOrUpdateUser(), principal.email: {}", jwtAuthToken.getTokenAttributes().get("email"));
 
-        final Fabber retrievedUser = fabberDAO.findByEmail(
+        final Optional<Fabber> retrievedUser = fabberDAO.findByEmail(
 				(String) jwtAuthToken.getTokenAttributes().get("email"));
 
-        if (retrievedUser != null) { // if user exists in database, update it
-            retrievedUser.setName((String) jwtAuthToken.getTokenAttributes().get("name"));
-            retrievedUser.setFirstName((String) jwtAuthToken.getTokenAttributes().get("given_name"));
-            retrievedUser.setLastName((String) jwtAuthToken.getTokenAttributes().get("family_name"));
-            retrievedUser.setAvatarUrl((String) jwtAuthToken.getTokenAttributes().get("picture"));
+        if (retrievedUser.isPresent()) { // if user exists in database, update it
+            retrievedUser.get().setName((String) jwtAuthToken.getTokenAttributes().get("name"));
+            retrievedUser.get().setFirstName((String) jwtAuthToken.getTokenAttributes().get("given_name"));
+            retrievedUser.get().setLastName((String) jwtAuthToken.getTokenAttributes().get("family_name"));
+            retrievedUser.get().setAvatarUrl((String) jwtAuthToken.getTokenAttributes().get("picture"));
 
-            Fabber persisted = fabberDAO.save(retrievedUser);
+            Fabber persisted = fabberDAO.save(retrievedUser.get());
             return convertToDTO(persisted);
         } else { // otherwise, create new user
             Fabber newUser = Fabber.builder()
@@ -82,19 +83,19 @@ public class FabberController {
 		// update the scores info 
 		calculateAndUpdateScores(email);
 		// user logged in with email as username
-		Fabber fabber = fabberDAO.findByEmail(email);
+		Fabber fabber = fabberDAO.findByEmail(email).get();
 		return convertToDTO(fabber);
 	}
 	
 	private void calculateAndUpdateScores(String email) {
-		Integer replicatorScore = workshopTutorDAO.countByFabberEmail(email);
+		Integer replicatorScore = workshopTutorDAO.countBySubGroupMember_GroupMember_FabberEmail(email);
 		Integer collaboratorScore = groupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, false)
-										+ subGroupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, false);
+										+ subGroupMemberDAO.countByGroupMember_Fabber_EmailAndIsCoordinatorIs(email, false);
 		Integer coordinatorScore = groupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, true)
-										+ subGroupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, true);
+										+ subGroupMemberDAO.countByGroupMember_Fabber_EmailAndIsCoordinatorIs(email, true);
 		Integer generalScore = replicatorScore + collaboratorScore + coordinatorScore;
 		
-		Fabber fabber = fabberDAO.findByEmail(email);
+		Fabber fabber = fabberDAO.findByEmail(email).get();
 		fabber.getFabberInfo().setScoreGeneral(generalScore);
 		fabber.getFabberInfo().setScoreCoordinator(coordinatorScore);
 		fabber.getFabberInfo().setScoreCollaborator(collaboratorScore);
@@ -105,7 +106,7 @@ public class FabberController {
 		
 	@RequestMapping(value = "/me/profile/{email}", method = RequestMethod.GET)
 	public FabberDTO getMyProfile(@PathVariable String email) {
-		Fabber fabber = fabberDAO.findByEmail(email);
+		Fabber fabber = fabberDAO.findByEmail(email).get();
 		FabberDTO fabberDTO = convertToDTO(fabber);
 		return fabberDTO;
 	}
@@ -118,7 +119,7 @@ public class FabberController {
 	@RequestMapping(value = "/me/update/{email}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public FabberDTO updateMe(@PathVariable String email, @RequestBody FabberDTO fabberDTO) {
-        Fabber fabber = fabberDAO.findByEmail(email);
+        Fabber fabber = fabberDAO.findByEmail(email).get();
         fabber.setFirstName(fabberDTO.getFirstName());
         fabber.setLastName(fabberDTO.getLastName());
         fabber.setIsFabAcademyGrad(fabberDTO.getIsFabAcademyGrad());

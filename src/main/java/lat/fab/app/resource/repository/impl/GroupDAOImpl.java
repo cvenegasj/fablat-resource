@@ -11,7 +11,7 @@ import java.util.List;
 //@Repository
 public class GroupDAOImpl extends GenericDAOImpl<Group, Integer> {
 
-	@Transactional
+	/*@Transactional
 	public List<Group> findByTerm(String term) {
 		List<Group> list = null;
 		list = (List<Group>) entityManager
@@ -88,6 +88,6 @@ public class GroupDAOImpl extends GenericDAOImpl<Group, Integer> {
 				.getSingleResult();
 		
 		return e != null ? e.getIsCoordinator() : false;
-	}
+	}*/
 
 }
