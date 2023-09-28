@@ -13,9 +13,9 @@ spring:
           issuer-uri: https://symbiocreation.auth0.com/
           audiences: rid6ZPjGfNTsGKlDGkQX97ECXJxLuzYa
 
-spring.datasource.url: jdbc:mysql://fablab-db.cz4cpfj4i3ku.us-east-1.rds.amazonaws.com:3306/fablat_db # to be changed
-spring.datasource.username: admin # to be changed
-spring.datasource.password: fablat2023 # to be changed
+spring.datasource.url: connection string # to be changed
+spring.datasource.username: theusername # to be changed
+spring.datasource.password: thepassword # to be changed
 #spring.datasource.url: jdbc:mysql://localhost:3306/fablat_db
 #spring.datasource.username: root
 #spring.datasource.password: 01382155144

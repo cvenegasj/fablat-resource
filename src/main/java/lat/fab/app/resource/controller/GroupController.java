@@ -1,9 +1,6 @@
 package lat.fab.app.resource.controller;
 
-import lat.fab.app.resource.dto.FabberDTO;
-import lat.fab.app.resource.dto.GroupDTO;
-import lat.fab.app.resource.dto.GroupMemberDTO;
-import lat.fab.app.resource.dto.SubGroupDTO;
+import lat.fab.app.resource.dto.*;
 import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.EmailServiceImpl;
@@ -43,6 +40,28 @@ public class GroupController {
 	private ActivityLogDAO activityLogDAO;
 	@Autowired
     public EmailServiceImpl emailService;
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public List<GroupLandingDto2> findAllLanding() {
+		return groupDAO.findAllByOrderByCreationDateTimeAsc().stream()
+				.map(group -> GroupLandingDto2.builder()
+						.id(group.getId())
+						.name(group.getName())
+						.description(group.getDescription())
+						.score(0)
+						.members(
+								groupMemberDAO.findAllByGroupId(group.getId()).stream()
+										.map(gm -> FabberDTO.builder()
+												.idFabber(gm.getFabber().getId())
+												.name(gm.getFabber().getName())
+												.avatarUrl(gm.getFabber().getAvatarUrl())
+												.build())
+										.toList())
+						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+						.imgUrl(group.getPhotoUrl())
+						.build())
+				.toList();
+	}
 
 	@RequestMapping(value = "/{email}", method = RequestMethod.GET)
 	public List<GroupDTO> findAll(@PathVariable String email) {

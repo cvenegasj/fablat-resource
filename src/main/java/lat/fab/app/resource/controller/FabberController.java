@@ -1,9 +1,8 @@
 package lat.fab.app.resource.controller;
 
 import lat.fab.app.resource.dto.FabberDTO;
-import lat.fab.app.resource.entities.Fabber;
-import lat.fab.app.resource.entities.FabberInfo;
-import lat.fab.app.resource.entities.RoleFabber;
+import lat.fab.app.resource.dto.GroupLandingDto;
+import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.Resources;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/auth/fabbers")
@@ -115,6 +114,17 @@ public class FabberController {
     public FabberDTO findOne(@PathVariable("idFabber") Integer idFabber) {
         return convertToDTO(fabberDAO.findById(idFabber).get());
     }
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public List<FabberDTO> findAll() {
+		return fabberDAO.findAll().stream()
+				.map(fabber -> {
+					FabberDTO dto = this.convertToDTO(fabber);
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					return dto;
+				})
+				.toList();
+	}
 	
 	@RequestMapping(value = "/me/update/{email}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
@@ -143,32 +153,42 @@ public class FabberController {
     }
 	
 	// ========== DTO conversion ==========
-	private FabberDTO convertToDTO(Fabber fabber) {		
-		FabberDTO fabberDTO = new FabberDTO();
-		fabberDTO.setIdFabber(fabber.getId());
-		fabberDTO.setEmail(fabber.getEmail());
-		fabberDTO.setName(fabber.getName());
-		fabberDTO.setFirstName(fabber.getFirstName());
-		fabberDTO.setLastName(fabber.getLastName());
-		fabberDTO.setIsFabAcademyGrad(fabber.getIsFabAcademyGrad());
-		fabberDTO.setFabAcademyGradYear(fabber.getFabAcademyGradYear());
-		fabberDTO.setCellPhoneNumber(fabber.getCellPhoneNumber());
-		fabberDTO.setIsNomade(fabber.getIsNomade());
-		fabberDTO.setMainQuote(fabber.getMainQuote());
-		fabberDTO.setCity(fabber.getCity());
-		fabberDTO.setCountry(fabber.getCountry());
-		fabberDTO.setWeekGoal(fabber.getWeekGoal());
-		fabberDTO.setAvatarUrl(fabber.getAvatarUrl());
-		fabberDTO.setLabId(fabber.getLab() != null ? fabber.getLab().getId() : null);
-		fabberDTO.setLabName(fabber.getLab() != null ? fabber.getLab().getName() : null);
-		fabberDTO.setGeneralScore(fabber.getFabberInfo().getScoreGeneral());
-		fabberDTO.setCoordinatorScore(fabber.getFabberInfo().getScoreCoordinator());
-		fabberDTO.setCollaboratorScore(fabber.getFabberInfo().getScoreCollaborator());
-		fabberDTO.setReplicatorScore(fabber.getFabberInfo().getScoreReplicator());
-		fabberDTO.setAuthorities(fabber.getRoleFabbers().stream()
-				.map(roleFabber -> roleFabber.getRole().getName())
-				.collect(Collectors.toList()));
+	private FabberDTO convertToDTO(Fabber fabber) {
+		return FabberDTO.builder()
+				.idFabber(fabber.getId())
+				.email(fabber.getEmail())
+				.name(fabber.getName())
+				.firstName(fabber.getFirstName())
+				.lastName(fabber.getLastName())
+				.isFabAcademyGrad(fabber.getIsFabAcademyGrad())
+				.fabAcademyGradYear(fabber.getFabAcademyGradYear())
+				.cellPhoneNumber(fabber.getCellPhoneNumber())
+				.isNomade(fabber.getIsNomade())
+				.mainQuote(fabber.getMainQuote())
+				.city(fabber.getCity())
+				.country(fabber.getCountry())
+				.weekGoal(fabber.getWeekGoal())
+				.avatarUrl(fabber.getAvatarUrl())
+				.labId(fabber.getLab() != null ? fabber.getLab().getId() : null)
+				.labName(fabber.getLab() != null ? fabber.getLab().getName() : null)
+				.generalScore(fabber.getFabberInfo().getScoreGeneral())
+				.coordinatorScore(fabber.getFabberInfo().getScoreCoordinator())
+				.collaboratorScore(fabber.getFabberInfo().getScoreCollaborator())
+				.replicatorScore(fabber.getFabberInfo().getScoreReplicator())
+				.authorities(fabber.getRoleFabbers().stream()
+						.map(roleFabber -> roleFabber.getRole().getName())
+						.toList())
+				.build();
+	}
 
-	    return fabberDTO;
+	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers) {
+		List<GroupLandingDto> groupLandingDtos = groupMembers.stream()
+				.map(groupMember -> GroupLandingDto.builder()
+						.id(groupMember.getGroup().getId())
+						.name(groupMember.getGroup().getName())
+						.avatarUrl(groupMember.getGroup().getPhotoUrl())
+						.build())
+				.toList();
+		fabberDTO.setGroupsJoined(groupLandingDtos);
 	}
 }

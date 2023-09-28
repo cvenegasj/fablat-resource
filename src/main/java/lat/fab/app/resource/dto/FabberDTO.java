@@ -1,10 +1,12 @@
 package lat.fab.app.resource.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 public class FabberDTO {
@@ -33,4 +35,7 @@ public class FabberDTO {
 	private Integer replicatorScore;
 
 	private List<String> authorities;
+
+	// for new landing
+	private List<GroupLandingDto> groupsJoined;
 }
