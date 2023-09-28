@@ -362,6 +362,9 @@ public class SubGroupController {
 	private SubGroupMemberDTO convertToDTO(SubGroupMember sgm) {
 		SubGroupMemberDTO sgmDTO = new SubGroupMemberDTO();
 		sgmDTO.setIdSubGroupMember(sgm.getId());
+		sgmDTO.setName(sgm.getGroupMember().getFabber().getFirstName() == null || sgm.getGroupMember().getFabber().getLastName() == null
+				? sgm.getGroupMember().getFabber().getName()
+				: sgm.getGroupMember().getFabber().getFirstName() + " " + sgm.getGroupMember().getFabber().getLastName());
 		sgmDTO.setFirstName(sgm.getGroupMember().getFabber().getFirstName());
 		sgmDTO.setLastName(sgm.getGroupMember().getFabber().getLastName());
 		sgmDTO.setEmail(sgm.getGroupMember().getFabber().getEmail());

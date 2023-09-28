@@ -239,6 +239,11 @@ public class WorkshopController {
 	private WorkshopTutorDTO convertToDTO(WorkshopTutor wt) {
 		WorkshopTutorDTO wtDTO = new WorkshopTutorDTO();
 		wtDTO.setIdWorkshopTutor(wt.getId());
+		wtDTO.setName(wt.getSubGroupMember().getGroupMember().getFabber().getFirstName() == null
+				|| wt.getSubGroupMember().getGroupMember().getFabber().getLastName() == null
+				? wt.getSubGroupMember().getGroupMember().getFabber().getName()
+				: wt.getSubGroupMember().getGroupMember().getFabber().getFirstName()
+				+ " " + wt.getSubGroupMember().getGroupMember().getFabber().getLastName());
 		wtDTO.setFirstName(wt.getSubGroupMember().getGroupMember().getFabber().getFirstName());
 		wtDTO.setLastName(wt.getSubGroupMember().getGroupMember().getFabber().getLastName());
 		wtDTO.setEmail(wt.getSubGroupMember().getGroupMember().getFabber().getEmail());

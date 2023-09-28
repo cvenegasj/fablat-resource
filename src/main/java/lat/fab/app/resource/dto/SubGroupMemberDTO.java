@@ -3,6 +3,7 @@ package lat.fab.app.resource.dto;
 public class SubGroupMemberDTO {
 
 	private Integer idSubGroupMember;
+	private String name;
 	private String firstName;
 	private String lastName;
 	private String email;
@@ -17,6 +18,14 @@ public class SubGroupMemberDTO {
 
 	public void setIdSubGroupMember(Integer idSubGroupMember) {
 		this.idSubGroupMember = idSubGroupMember;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getFirstName() {

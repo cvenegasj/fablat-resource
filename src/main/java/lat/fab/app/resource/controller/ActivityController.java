@@ -70,7 +70,7 @@ public class ActivityController {
 		aDTO.setFabberId(a.getFabber().getId());
 		aDTO.setFabberName(a.getFabber().getFirstName() == null || a.getFabber().getLastName() == null
 				? a.getFabber().getName()
-				: null);
+				: a.getFabber().getFirstName() + " " + a.getFabber().getLastName());
 		aDTO.setFabberFirstName(a.getFabber().getFirstName());
 		aDTO.setFabberLastName(a.getFabber().getLastName());
 		return aDTO;

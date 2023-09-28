@@ -3,6 +3,7 @@ package lat.fab.app.resource.dto;
 public class WorkshopTutorDTO {
 
 	private Integer idWorkshopTutor;
+	private String name;
 	private String firstName;
 	private String lastName;
 	private String email;
@@ -14,6 +15,14 @@ public class WorkshopTutorDTO {
 
 	public void setIdWorkshopTutor(Integer idWorkshopTutor) {
 		this.idWorkshopTutor = idWorkshopTutor;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getFirstName() {

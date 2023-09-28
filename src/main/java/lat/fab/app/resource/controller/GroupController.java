@@ -456,7 +456,9 @@ public class GroupController {
 	private GroupMemberDTO convertToDTO(GroupMember gm) {
 		GroupMemberDTO gmDTO = new GroupMemberDTO();
 		gmDTO.setIdGroupMember(gm.getId());
-		gmDTO.setName(gm.getFabber().getName());
+		gmDTO.setName(gm.getFabber().getFirstName() == null ||gm.getFabber().getLastName() == null
+				? gm.getFabber().getName()
+				: gm.getFabber().getFirstName() + " " + gm.getFabber().getLastName());
 		gmDTO.setFirstName(gm.getFabber().getFirstName());
 		gmDTO.setLastName(gm.getFabber().getLastName());
 		gmDTO.setEmail(gm.getFabber().getEmail());
