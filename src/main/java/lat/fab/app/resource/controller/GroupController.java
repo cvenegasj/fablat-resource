@@ -442,6 +442,12 @@ public class GroupController {
 		member.setIsCoordinator(true);
 		groupMemberDAO.save(member);
 	}
+
+	@GetMapping("/count")
+	@ResponseStatus(HttpStatus.OK)
+	public long countAll() {
+		return groupDAO.count();
+	}
 	
 	
 	// ========== DTO conversion ==========

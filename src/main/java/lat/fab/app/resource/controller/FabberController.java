@@ -32,7 +32,7 @@ public class FabberController {
 	private final WorkshopTutorDAO workshopTutorDAO;
 	private final RoleDAO roleDAO;
 
-	@PostMapping(value = "/createOrUpdateUser")
+	@PostMapping("/createOrUpdateUser")
 	@ResponseStatus(HttpStatus.CREATED)
 	public FabberDTO createOrUpdateUser(@AuthenticationPrincipal JwtAuthenticationToken jwtAuthToken) {
 		log.info("createOrUpdateUser(), principal.email: {}", jwtAuthToken.getTokenAttributes().get("email"));
@@ -81,7 +81,7 @@ public class FabberController {
         }
 	}
 	
-	@GetMapping(value = "/me/general/{email}")
+	@GetMapping("/me/general/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
 		// update the scores info 
@@ -108,7 +108,7 @@ public class FabberController {
 		fabberDAO.save(fabber);
 	}
 		
-	@GetMapping(value = "/me/profile/{email}")
+	@GetMapping("/me/profile/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyProfile(@PathVariable String email) {
 		Fabber fabber = fabberDAO.findByEmail(email).get();
@@ -140,7 +140,7 @@ public class FabberController {
 				.toList();
 	}
 	
-	@PutMapping(value = "/me/update/{email}")
+	@PutMapping("/me/update/{email}")
     @ResponseStatus(HttpStatus.OK)
     public FabberDTO updateMe(@PathVariable String email, @RequestBody FabberDTO fabberDTO) {
         Fabber fabber = fabberDAO.findByEmail(email).get();
@@ -165,6 +165,12 @@ public class FabberController {
 		Fabber persisted = fabberDAO.save(fabber);
         return convertToDTO(persisted);
     }
+
+	@GetMapping("/count")
+	@ResponseStatus(HttpStatus.OK)
+	public long countAll() {
+		return fabberDAO.count();
+	}
 	
 	// ========== DTO conversion ==========
 	private FabberDTO convertToDTO(Fabber fabber) {
