@@ -2,11 +2,15 @@ package lat.fab.app.resource.controller;
 
 import lat.fab.app.resource.dto.FabberDTO;
 import lat.fab.app.resource.dto.GroupLandingDto;
-import lat.fab.app.resource.entities.*;
+import lat.fab.app.resource.entities.Fabber;
+import lat.fab.app.resource.entities.FabberInfo;
+import lat.fab.app.resource.entities.GroupMember;
+import lat.fab.app.resource.entities.RoleFabber;
 import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.Resources;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -28,7 +32,7 @@ public class FabberController {
 	private final WorkshopTutorDAO workshopTutorDAO;
 	private final RoleDAO roleDAO;
 
-	@RequestMapping(value = "/createOrUpdateUser", method = RequestMethod.POST)
+	@PostMapping(value = "/createOrUpdateUser")
 	@ResponseStatus(HttpStatus.CREATED)
 	public FabberDTO createOrUpdateUser(@AuthenticationPrincipal JwtAuthenticationToken jwtAuthToken) {
 		log.info("createOrUpdateUser(), principal.email: {}", jwtAuthToken.getTokenAttributes().get("email"));
@@ -77,7 +81,8 @@ public class FabberController {
         }
 	}
 	
-	@RequestMapping(value = "/me/general/{email}", method = RequestMethod.GET)
+	@GetMapping(value = "/me/general/{email}")
+	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
 		// update the scores info 
 		calculateAndUpdateScores(email);
@@ -103,21 +108,30 @@ public class FabberController {
 		fabberDAO.save(fabber);
 	}
 		
-	@RequestMapping(value = "/me/profile/{email}", method = RequestMethod.GET)
+	@GetMapping(value = "/me/profile/{email}")
+	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyProfile(@PathVariable String email) {
 		Fabber fabber = fabberDAO.findByEmail(email).get();
 		FabberDTO fabberDTO = convertToDTO(fabber);
 		return fabberDTO;
 	}
 	
-	@RequestMapping(value = "/{idFabber}", method = RequestMethod.GET)
+	@GetMapping(value = "/{idFabber}")
+	@ResponseStatus(HttpStatus.OK)
     public FabberDTO findOne(@PathVariable("idFabber") Integer idFabber) {
         return convertToDTO(fabberDAO.findById(idFabber).get());
     }
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public List<FabberDTO> findAll() {
-		return fabberDAO.findAll().stream()
+	@GetMapping
+	@ResponseStatus(HttpStatus.OK)
+	public List<FabberDTO> findAll(
+			@RequestParam Optional<Integer> page,
+			@RequestParam Optional<Integer> size) {
+		List<Fabber> fabbers = page.isPresent() && size.isPresent()
+				? fabberDAO.findAll(PageRequest.of(page.get(), size.get())).toList()
+				: fabberDAO.findAll();
+
+		return fabbers.stream()
 				.map(fabber -> {
 					FabberDTO dto = this.convertToDTO(fabber);
 					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
@@ -126,7 +140,7 @@ public class FabberController {
 				.toList();
 	}
 	
-	@RequestMapping(value = "/me/update/{email}", method = RequestMethod.PUT)
+	@PutMapping(value = "/me/update/{email}")
     @ResponseStatus(HttpStatus.OK)
     public FabberDTO updateMe(@PathVariable String email, @RequestBody FabberDTO fabberDTO) {
         Fabber fabber = fabberDAO.findByEmail(email).get();

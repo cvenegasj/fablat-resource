@@ -6,6 +6,7 @@ import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.EmailServiceImpl;
 import lat.fab.app.resource.util.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +42,15 @@ public class GroupController {
 	@Autowired
     public EmailServiceImpl emailService;
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public List<GroupLandingDto2> findAllLanding() {
-		return groupDAO.findAllByOrderByCreationDateTimeAsc().stream()
+	@GetMapping
+	public List<GroupLandingDto2> findAllLanding(
+			@RequestParam Optional<Integer> page,
+			@RequestParam Optional<Integer> size) {
+		List<Group> groups = page.isPresent() && size.isPresent()
+				? groupDAO.findAllByOrderByCreationDateTimeAsc(PageRequest.of(page.get(), size.get()))
+				: groupDAO.findAllByOrderByCreationDateTimeAsc();
+
+		return groups.stream()
 				.map(group -> GroupLandingDto2.builder()
 						.id(group.getId())
 						.name(group.getName())
