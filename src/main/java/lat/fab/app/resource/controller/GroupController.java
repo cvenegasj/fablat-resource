@@ -6,6 +6,7 @@ import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.EmailServiceImpl;
 import lat.fab.app.resource.util.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +69,78 @@ public class GroupController {
 						.imgUrl(group.getPhotoUrl())
 						.build())
 				.toList();
+	}
+
+	@GetMapping("/filter")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<GroupLandingDto2> findAllLandingWithFilter(
+			@RequestParam Integer page,
+			@RequestParam Integer size,
+			@RequestParam Optional<String> name) { // group name
+
+		PageRequest pagination = PageRequest.of(page, size);
+
+		String nameFilter = name.isPresent() ? "%" + name.get() + "%" : "%";
+		Page<Group> groups = null;
+
+		if (name.isPresent()) {
+			groups = groupDAO.findByNameIgnoreCaseLikeOrderByNameAsc(nameFilter, pagination);
+		} else {
+			groups = groupDAO.findAll(pagination);
+		}
+
+		return groups
+				.map(group -> GroupLandingDto2.builder()
+						.id(group.getId())
+						.name(group.getName())
+						.description(group.getDescription())
+						.score(0)
+						.members(
+								groupMemberDAO.findAllByGroupId(group.getId()).stream()
+										.map(gm -> FabberDTO.builder()
+												.idFabber(gm.getFabber().getId())
+												.name(gm.getFabber().getName())
+												.avatarUrl(gm.getFabber().getAvatarUrl())
+												.build())
+										.toList())
+						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+						.imgUrl(group.getPhotoUrl())
+						.build());
+	}
+
+	@GetMapping("/sort")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<GroupLandingDto2> findAllLandingWithSorting(
+			@RequestParam Integer page,
+			@RequestParam Integer size,
+			@RequestParam String sortBy) {
+
+		PageRequest pagination = PageRequest.of(page, size);
+
+		Page<Group> groups = switch (sortBy) {
+			case "name" -> groupDAO.findAllByOrderByNameDesc(pagination);
+//			case "score" -> groupDAO.findAllByOrderByFabberInfoScoreGeneralDesc(pagination);
+			case "membersCount" -> groupDAO.findAllOrderByMembersCountDesc(pagination);
+			default -> Page.empty();
+		};
+
+		return groups
+				.map(group -> GroupLandingDto2.builder()
+						.id(group.getId())
+						.name(group.getName())
+						.description(group.getDescription())
+						.score(0)
+						.members(
+								groupMemberDAO.findAllByGroupId(group.getId()).stream()
+										.map(gm -> FabberDTO.builder()
+												.idFabber(gm.getFabber().getId())
+												.name(gm.getFabber().getName())
+												.avatarUrl(gm.getFabber().getAvatarUrl())
+												.build())
+										.toList())
+						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+						.imgUrl(group.getPhotoUrl())
+						.build());
 	}
 
 	@RequestMapping(value = "/{email}", method = RequestMethod.GET)

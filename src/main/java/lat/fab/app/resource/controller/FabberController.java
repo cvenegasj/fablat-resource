@@ -10,6 +10,7 @@ import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.Resources;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -124,7 +125,7 @@ public class FabberController {
 
 	@GetMapping
 	@ResponseStatus(HttpStatus.OK)
-	public List<FabberDTO> findAll(
+	public List<FabberDTO> findAllLanding(
 			@RequestParam Optional<Integer> page,
 			@RequestParam Optional<Integer> size) {
 		List<Fabber> fabbers = page.isPresent() && size.isPresent()
@@ -138,6 +139,63 @@ public class FabberController {
 					return dto;
 				})
 				.toList();
+	}
+
+	@GetMapping("/filter")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<FabberDTO> findAllLandingWithFilter(
+			@RequestParam Integer page,
+			@RequestParam Integer size,
+			@RequestParam Optional<String> name, // fabber name
+			@RequestParam Optional<List<String>> countries) { // comma-separated list of countries keys
+
+		PageRequest pagination = PageRequest.of(page, size);
+
+		String nameFilter = name.isPresent() ? "%" + name.get() + "%" : "%";
+		Page<Fabber> fabbers = null;
+
+		if (name.isPresent() && countries.isPresent()) {
+			fabbers = fabberDAO.findByNameIgnoreCaseLikeAndCountryIsInOrderByNameAsc(
+					nameFilter, countries.get(), pagination);
+		} else if (name.isPresent()) {
+			fabbers = fabberDAO.findByNameIgnoreCaseLikeOrderByNameAsc(nameFilter, pagination);
+		} else if (countries.isPresent()) {
+			fabbers = fabberDAO.findByCountryIsInOrderByNameAsc(countries.get(), pagination);
+		} else {
+			fabbers = fabberDAO.findAll(pagination);
+		}
+
+		return fabbers
+				.map(fabber -> {
+					FabberDTO dto = this.convertToDTO(fabber);
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					return dto;
+				});
+	}
+
+	@GetMapping("/sort")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<FabberDTO> findAllLandingWithSorting(
+			@RequestParam Integer page,
+			@RequestParam Integer size,
+			@RequestParam String sortBy) {
+
+		PageRequest pagination = PageRequest.of(page, size);
+
+		Page<Fabber> fabbers = switch (sortBy) {
+			case "name" -> fabberDAO.findAllByOrderByNameDesc(pagination);
+			case "score" -> fabberDAO.findAllByOrderByFabberInfoScoreGeneralDesc(pagination);
+			case "groupsCount" -> fabberDAO.findAllOrderByGroupsCountDesc(pagination);
+//			case "workshopCount" -> fabberDAO.findAllOrderByWorkshopsCount(pagination);
+			default -> Page.empty();
+		};
+
+		return fabbers
+				.map(fabber -> {
+					FabberDTO dto = this.convertToDTO(fabber);
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					return dto;
+				});
 	}
 	
 	@PutMapping("/me/update/{email}")
