@@ -7,7 +7,7 @@ import lat.fab.app.resource.entities.FabberInfo;
 import lat.fab.app.resource.entities.GroupMember;
 import lat.fab.app.resource.entities.RoleFabber;
 import lat.fab.app.resource.repository.*;
-import lat.fab.app.resource.util.Resources;
+import lat.fab.app.resource.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -63,7 +63,7 @@ public class FabberController {
 
             // set RoleFabber: ROLE_USER
             RoleFabber roleFabber = new RoleFabber();
-            roleFabber.setRole(roleDAO.findByName(Resources.ROLE_USER));
+            roleFabber.setRole(roleDAO.findByName(Constants.ROLE_USER));
             roleFabber.setFabber(newUser);
             newUser.setRoleFabbers(Set.of(roleFabber));
 
@@ -210,6 +210,8 @@ public class FabberController {
         fabber.setCountry(fabberDTO.getCountry());
         fabber.setMainQuote(fabberDTO.getMainQuote());
         fabber.setWeekGoal(fabberDTO.getWeekGoal());
+
+		fabber.setCountry(fabberDTO.getCountry());
         		
 		// lab
 		if (fabberDTO.getLabId() != null) {
@@ -224,10 +226,21 @@ public class FabberController {
         return convertToDTO(persisted);
     }
 
+	// TODO: remove later
 	@GetMapping("/count")
 	@ResponseStatus(HttpStatus.OK)
 	public long countAll() {
 		return fabberDAO.count();
+	}
+
+	@GetMapping("/set-country-all")
+	@ResponseStatus(HttpStatus.OK)
+	public void setCountryForAll() {
+		fabberDAO.findAll()
+				.forEach(fabber -> {
+					fabber.setCountry("PER");
+					fabberDAO.save(fabber);
+				});
 	}
 	
 	// ========== DTO conversion ==========

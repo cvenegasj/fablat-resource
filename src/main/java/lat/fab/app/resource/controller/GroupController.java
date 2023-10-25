@@ -4,7 +4,7 @@ import lat.fab.app.resource.dto.*;
 import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.EmailServiceImpl;
-import lat.fab.app.resource.util.Resources;
+import lat.fab.app.resource.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -316,9 +316,9 @@ public class GroupController {
         
         // create activity on group creation
         ActivityLog activity = new  ActivityLog();
-        activity.setLevel(Resources.ACTIVITY_LEVEL_GROUP);
-        activity.setType(Resources.ACTIVITY_TYPE_ORIGIN); // it's the origin of the group
-        activity.setVisibility(Resources.ACTIVITY_VISIBILITY_EXTERNAL); // app-wide visibility
+        activity.setLevel(Constants.ACTIVITY_LEVEL_GROUP);
+        activity.setType(Constants.ACTIVITY_TYPE_ORIGIN); // it's the origin of the group
+        activity.setVisibility(Constants.ACTIVITY_VISIBILITY_EXTERNAL); // app-wide visibility
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setGroup(group);
         activity.setFabber(gm.getFabber());
@@ -385,9 +385,9 @@ public class GroupController {
 		
 		// generate activity
 		ActivityLog activity = new  ActivityLog();
-		activity.setLevel(Resources.ACTIVITY_LEVEL_GROUP);
-        activity.setType(Resources.ACTIVITY_TYPE_USER_JOINED);
-        activity.setVisibility(Resources.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
+		activity.setLevel(Constants.ACTIVITY_LEVEL_GROUP);
+        activity.setType(Constants.ACTIVITY_TYPE_USER_JOINED);
+        activity.setVisibility(Constants.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setGroup(group);
         activity.setFabber(member.getFabber());
@@ -416,9 +416,9 @@ public class GroupController {
 		
 		// generate activity
         ActivityLog activity = new  ActivityLog();
-        activity.setLevel(Resources.ACTIVITY_LEVEL_GROUP);
-        activity.setType(Resources.ACTIVITY_TYPE_USER_LEFT);
-        activity.setVisibility(Resources.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
+        activity.setLevel(Constants.ACTIVITY_LEVEL_GROUP);
+        activity.setType(Constants.ACTIVITY_TYPE_USER_LEFT);
+        activity.setVisibility(Constants.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
         Instant now = Instant.now();
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setGroup(group);

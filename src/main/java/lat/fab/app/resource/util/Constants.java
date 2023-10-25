@@ -1,6 +1,11 @@
 package lat.fab.app.resource.util;
 
-public class Resources {
+import lat.fab.app.resource.util.countries.Country;
+
+import java.util.List;
+import java.util.Map;
+
+public class Constants {
 
 	// Roles
 	public static final String ROLE_ADMIN_GENERAL = "ROLE_ADMIN_GENERAL";
@@ -26,4 +31,7 @@ public class Resources {
 	public static final String ACTIVITY_VISIBILITY_EXTERNAL = "EXTERNAL"; // app-wide visibility 
 	public static final String ACTIVITY_VISIBILITY_INTERNAL = "INTERNAL"; // group or subgroup internal visibility
 
+	public static final List<Country> countriesList = CountriesJsonParser.fromJsonFileToList();
+
+	public static final Map<String, Country> countriesMap = CountriesJsonParser.fromListToMap(countriesList);
 }
