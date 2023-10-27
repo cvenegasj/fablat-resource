@@ -26,6 +26,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class FabberController {
+
 	private final FabberDAO fabberDAO;
 	private final LabDAO labDAO;
 	private final GroupMemberDAO groupMemberDAO;

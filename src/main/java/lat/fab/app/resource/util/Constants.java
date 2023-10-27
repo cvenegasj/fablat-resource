@@ -26,6 +26,8 @@ public class Constants {
 	public static final String ACTIVITY_TYPE_WORKSHOP_CREATED = "WORKSHOP_CREATED";
 	public static final String ACTIVITY_TYPE_WORKSHOP_DELETED = "WORKSHOP_DELETED";
 	public static final String ACTIVITY_TYPE_COLOR_CHANGED = "COLOR_CHANGED";
+
+	public static final String FABLABS_IO_API_URL = "https://api.fablabs.io/";
 	
 	// Activity visibilities
 	public static final String ACTIVITY_VISIBILITY_EXTERNAL = "EXTERNAL"; // app-wide visibility 
