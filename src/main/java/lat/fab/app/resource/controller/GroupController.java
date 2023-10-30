@@ -66,7 +66,7 @@ public class GroupController {
 												.build())
 										.toList())
 						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl(group.getPhotoUrl())
+						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
 						.build())
 				.toList();
 	}
@@ -90,7 +90,7 @@ public class GroupController {
 												.build())
 										.toList())
 						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl(group.getPhotoUrl())
+						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
 						.build())
 				.orElse(null);
 	}
@@ -128,7 +128,7 @@ public class GroupController {
 												.build())
 										.toList())
 						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl(group.getPhotoUrl())
+						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
 						.build());
 	}
 
@@ -163,7 +163,7 @@ public class GroupController {
 												.build())
 										.toList())
 						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl(group.getPhotoUrl())
+						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
 						.build());
 	}
 

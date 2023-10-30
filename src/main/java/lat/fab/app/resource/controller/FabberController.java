@@ -267,7 +267,8 @@ public class FabberController {
 				.map(groupMember -> GroupLandingDto2.builder()
 						.id(groupMember.getGroup().getId())
 						.name(groupMember.getGroup().getName())
-						.imgUrl(groupMember.getGroup().getPhotoUrl())
+						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+								+ groupMember.getGroup().getPhotoUrl())
 						.build())
 				.toList();
 		fabberDTO.setGroupsJoined(groupLandingDtos);
