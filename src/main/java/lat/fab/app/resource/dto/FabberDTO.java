@@ -37,5 +37,5 @@ public class FabberDTO {
 	private List<String> authorities;
 
 	// for new landing
-	private List<GroupLandingDto> groupsJoined;
+	private List<GroupLandingDto2> groupsJoined;
 }

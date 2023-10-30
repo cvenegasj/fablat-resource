@@ -3,8 +3,8 @@ package lat.fab.app.resource.controller;
 import lat.fab.app.resource.dto.*;
 import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.*;
-import lat.fab.app.resource.util.EmailServiceImpl;
 import lat.fab.app.resource.util.Constants;
+import lat.fab.app.resource.util.EmailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,7 +56,7 @@ public class GroupController {
 						.id(group.getId())
 						.name(group.getName())
 						.description(group.getDescription())
-						.score(0)
+						.score(0) // TODO
 						.members(
 								groupMemberDAO.findAllByGroupId(group.getId()).stream()
 										.map(gm -> FabberDTO.builder()
@@ -69,6 +69,30 @@ public class GroupController {
 						.imgUrl(group.getPhotoUrl())
 						.build())
 				.toList();
+	}
+
+	@GetMapping("/one/{idGroup}")
+	public GroupLandingDto2 findOneLanding(@PathVariable String idGroup) {
+
+		return groupDAO.findById(Integer.valueOf(idGroup))
+				.map(group -> GroupLandingDto2.builder()
+						.id(group.getId())
+						.name(group.getName())
+						.description(group.getDescription())
+						.score(0)
+						.members(
+								groupMemberDAO.findAllByGroupId(group.getId()).stream()
+										.map(gm -> FabberDTO.builder()
+												.idFabber(gm.getFabber().getId())
+												.name(gm.getFabber().getName())
+												.generalScore(gm.getFabber().getFabberInfo().getScoreGeneral())
+												.avatarUrl(gm.getFabber().getAvatarUrl())
+												.build())
+										.toList())
+						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+						.imgUrl(group.getPhotoUrl())
+						.build())
+				.orElse(null);
 	}
 
 	@GetMapping("/filter")

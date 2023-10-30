@@ -1,7 +1,7 @@
 package lat.fab.app.resource.controller;
 
 import lat.fab.app.resource.dto.FabberDTO;
-import lat.fab.app.resource.dto.GroupLandingDto;
+import lat.fab.app.resource.dto.GroupLandingDto2;
 import lat.fab.app.resource.entities.Fabber;
 import lat.fab.app.resource.entities.FabberInfo;
 import lat.fab.app.resource.entities.GroupMember;
@@ -120,8 +120,13 @@ public class FabberController {
 	
 	@GetMapping(value = "/{idFabber}")
 	@ResponseStatus(HttpStatus.OK)
-    public FabberDTO findOne(@PathVariable("idFabber") Integer idFabber) {
-        return convertToDTO(fabberDAO.findById(idFabber).get());
+    public FabberDTO findOneLandind(@PathVariable("idFabber") Integer idFabber) {
+        return fabberDAO.findById(idFabber)
+				.map(fabber -> {
+					FabberDTO dto = this.convertToDTO(fabber);
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					return dto;
+				}).orElse(null);
     }
 
 	@GetMapping
@@ -274,11 +279,11 @@ public class FabberController {
 	}
 
 	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers) {
-		List<GroupLandingDto> groupLandingDtos = groupMembers.stream()
-				.map(groupMember -> GroupLandingDto.builder()
+		List<GroupLandingDto2> groupLandingDtos = groupMembers.stream()
+				.map(groupMember -> GroupLandingDto2.builder()
 						.id(groupMember.getGroup().getId())
 						.name(groupMember.getGroup().getName())
-						.avatarUrl(groupMember.getGroup().getPhotoUrl())
+						.imgUrl(groupMember.getGroup().getPhotoUrl())
 						.build())
 				.toList();
 		fabberDTO.setGroupsJoined(groupLandingDtos);
