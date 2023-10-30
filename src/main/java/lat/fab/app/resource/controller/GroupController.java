@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -52,22 +53,29 @@ public class GroupController {
 				: groupDAO.findAllByOrderByCreationDateTimeAsc();
 
 		return groups.stream()
-				.map(group -> GroupLandingDto2.builder()
-						.id(group.getId())
-						.name(group.getName())
-						.description(group.getDescription())
-						.score(0) // TODO
-						.members(
-								groupMemberDAO.findAllByGroupId(group.getId()).stream()
-										.map(gm -> FabberDTO.builder()
-												.idFabber(gm.getFabber().getId())
-												.name(gm.getFabber().getName())
-												.avatarUrl(gm.getFabber().getAvatarUrl())
-												.build())
-										.toList())
-						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
-						.build())
+				.map(group -> {
+					String groupImgUrl = StringUtils.hasText(group.getPhotoUrl())
+							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+							+ group.getPhotoUrl()
+							: null;
+
+					return GroupLandingDto2.builder()
+							.id(group.getId())
+							.name(group.getName())
+							.description(group.getDescription())
+							.score(0) // TODO
+							.members(
+									groupMemberDAO.findAllByGroupId(group.getId()).stream()
+											.map(gm -> FabberDTO.builder()
+													.idFabber(gm.getFabber().getId())
+													.name(gm.getFabber().getName())
+													.avatarUrl(gm.getFabber().getAvatarUrl())
+													.build())
+											.toList())
+							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.imgUrl(groupImgUrl)
+							.build();
+				})
 				.toList();
 	}
 
@@ -75,23 +83,30 @@ public class GroupController {
 	public GroupLandingDto2 findOneLanding(@PathVariable String idGroup) {
 
 		return groupDAO.findById(Integer.valueOf(idGroup))
-				.map(group -> GroupLandingDto2.builder()
-						.id(group.getId())
-						.name(group.getName())
-						.description(group.getDescription())
-						.score(0)
-						.members(
-								groupMemberDAO.findAllByGroupId(group.getId()).stream()
-										.map(gm -> FabberDTO.builder()
-												.idFabber(gm.getFabber().getId())
-												.name(gm.getFabber().getName())
-												.generalScore(gm.getFabber().getFabberInfo().getScoreGeneral())
-												.avatarUrl(gm.getFabber().getAvatarUrl())
-												.build())
-										.toList())
-						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
-						.build())
+				.map(group -> {
+					String groupImgUrl = StringUtils.hasText(group.getPhotoUrl())
+							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+							+ group.getPhotoUrl()
+							: null;
+
+					return GroupLandingDto2.builder()
+							.id(group.getId())
+							.name(group.getName())
+							.description(group.getDescription())
+							.score(0)
+							.members(
+									groupMemberDAO.findAllByGroupId(group.getId()).stream()
+											.map(gm -> FabberDTO.builder()
+													.idFabber(gm.getFabber().getId())
+													.name(gm.getFabber().getName())
+													.generalScore(gm.getFabber().getFabberInfo().getScoreGeneral())
+													.avatarUrl(gm.getFabber().getAvatarUrl())
+													.build())
+											.toList())
+							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.imgUrl(groupImgUrl)
+							.build();
+				})
 				.orElse(null);
 	}
 
@@ -114,22 +129,29 @@ public class GroupController {
 		}
 
 		return groups
-				.map(group -> GroupLandingDto2.builder()
-						.id(group.getId())
-						.name(group.getName())
-						.description(group.getDescription())
-						.score(0)
-						.members(
-								groupMemberDAO.findAllByGroupId(group.getId()).stream()
-										.map(gm -> FabberDTO.builder()
-												.idFabber(gm.getFabber().getId())
-												.name(gm.getFabber().getName())
-												.avatarUrl(gm.getFabber().getAvatarUrl())
-												.build())
-										.toList())
-						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
-						.build());
+				.map(group -> {
+					String groupImgUrl = StringUtils.hasText(group.getPhotoUrl())
+							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+							+ group.getPhotoUrl()
+							: null;
+
+					return GroupLandingDto2.builder()
+							.id(group.getId())
+							.name(group.getName())
+							.description(group.getDescription())
+							.score(0)
+							.members(
+									groupMemberDAO.findAllByGroupId(group.getId()).stream()
+											.map(gm -> FabberDTO.builder()
+													.idFabber(gm.getFabber().getId())
+													.name(gm.getFabber().getName())
+													.avatarUrl(gm.getFabber().getAvatarUrl())
+													.build())
+											.toList())
+							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.imgUrl(groupImgUrl)
+							.build();
+				});
 	}
 
 	@GetMapping("/sort")
@@ -149,22 +171,29 @@ public class GroupController {
 		};
 
 		return groups
-				.map(group -> GroupLandingDto2.builder()
-						.id(group.getId())
-						.name(group.getName())
-						.description(group.getDescription())
-						.score(0)
-						.members(
-								groupMemberDAO.findAllByGroupId(group.getId()).stream()
-										.map(gm -> FabberDTO.builder()
-												.idFabber(gm.getFabber().getId())
-												.name(gm.getFabber().getName())
-												.avatarUrl(gm.getFabber().getAvatarUrl())
-												.build())
-										.toList())
-						.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
-						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/" + group.getPhotoUrl())
-						.build());
+				.map(group -> {
+					String groupImgUrl = StringUtils.hasText(group.getPhotoUrl())
+							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+							+ group.getPhotoUrl()
+							: null;
+
+					return GroupLandingDto2.builder()
+							.id(group.getId())
+							.name(group.getName())
+							.description(group.getDescription())
+							.score(0)
+							.members(
+									groupMemberDAO.findAllByGroupId(group.getId()).stream()
+											.map(gm -> FabberDTO.builder()
+													.idFabber(gm.getFabber().getId())
+													.name(gm.getFabber().getName())
+													.avatarUrl(gm.getFabber().getAvatarUrl())
+													.build())
+											.toList())
+							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.imgUrl(groupImgUrl)
+							.build();
+				});
 	}
 
 	@RequestMapping(value = "/{email}", method = RequestMethod.GET)

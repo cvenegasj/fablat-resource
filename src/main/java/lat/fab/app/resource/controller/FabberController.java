@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -264,12 +265,18 @@ public class FabberController {
 
 	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers) {
 		List<GroupLandingDto2> groupLandingDtos = groupMembers.stream()
-				.map(groupMember -> GroupLandingDto2.builder()
-						.id(groupMember.getGroup().getId())
-						.name(groupMember.getGroup().getName())
-						.imgUrl("http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
-								+ groupMember.getGroup().getPhotoUrl())
-						.build())
+				.map(groupMember -> {
+					String groupImgUrl = StringUtils.hasText(groupMember.getGroup().getPhotoUrl())
+							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
+							+ groupMember.getGroup().getPhotoUrl()
+							: null;
+
+					return GroupLandingDto2.builder()
+							.id(groupMember.getGroup().getId())
+							.name(groupMember.getGroup().getName())
+							.imgUrl(groupImgUrl)
+							.build();
+				})
 				.toList();
 		fabberDTO.setGroupsJoined(groupLandingDtos);
 	}
