@@ -208,25 +208,9 @@ public class FabberController {
     @ResponseStatus(HttpStatus.OK)
     public FabberDTO updateMe(@PathVariable String email, @RequestBody FabberDTO fabberDTO) {
         Fabber fabber = fabberDAO.findByEmail(email).get();
-        fabber.setFirstName(fabberDTO.getFirstName());
-        fabber.setLastName(fabberDTO.getLastName());
         fabber.setIsFabAcademyGrad(fabberDTO.getIsFabAcademyGrad());
         fabber.setFabAcademyGradYear(fabberDTO.getIsFabAcademyGrad() ? fabberDTO.getFabAcademyGradYear() : null);
-        fabber.setCity(fabberDTO.getCity());
         fabber.setCountry(fabberDTO.getCountry());
-        fabber.setMainQuote(fabberDTO.getMainQuote());
-        fabber.setWeekGoal(fabberDTO.getWeekGoal());
-
-		fabber.setCountry(fabberDTO.getCountry());
-        		
-		// lab
-		if (fabberDTO.getLabId() != null) {
-			fabber.setLab(labDAO.findById(fabberDTO.getLabId()).get());
-			fabber.setIsNomade(false);
-		} else {
-			fabber.setLab(null);
-			fabber.setIsNomade(true);
-		}
 
 		Fabber persisted = fabberDAO.save(fabber);
         return convertToDTO(persisted);

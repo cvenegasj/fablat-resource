@@ -380,10 +380,10 @@ public class GroupController {
 		groupDAO.save(group);
     }
 	
-	@RequestMapping(value = "/{idGroup}", method = RequestMethod.DELETE)
+	@DeleteMapping("/{idGroup}")
 	@ResponseStatus(HttpStatus.OK)
-	public void delete(@PathVariable("idGroup") Integer idGroup) {
-		groupDAO.save(groupDAO.findById(idGroup).get());
+	public void delete(@PathVariable Integer idGroup) {
+		groupDAO.deleteById(idGroup);
 	}
 	
 	@RequestMapping(value = "/{idGroup}/join/{email}", method = RequestMethod.POST)
@@ -397,7 +397,7 @@ public class GroupController {
 		Group group = groupDAO.findById(idGroup).get();
 		
 		GroupMember member = new GroupMember();
-		member.setIsCoordinator(groupMemberDAO.countDistinctByGroupId(group.getId()) == 0 ? true : false);
+		member.setIsCoordinator(groupMemberDAO.countDistinctByGroupId(group.getId()) == 0);
 		member.setNotificationsEnabled(true);
 		// set creation datetime 
         Instant now = Instant.now();
