@@ -205,7 +205,7 @@ public class GroupController {
 			gDTO.setMembersCount(groupMemberDAO.countDistinctByGroupId(group.getId()));
 			gDTO.setSubGroupsCount(subGroupDAO.countDistinctByGroupId(group.getId()));
 			
-			gDTO.setAmIMember(groupMemberDAO.findByGroupIdAndFabberEmail(group.getId(), email) != null);
+			gDTO.setAmIMember(groupMemberDAO.findByGroupIdAndFabberEmail(group.getId(), email).isPresent());
 
       	  	returnList.add(gDTO);
 		}
@@ -308,11 +308,11 @@ public class GroupController {
 			SubGroupDTO sDTO = convertToDTO(sg);
 			sDTO.setMembersCount(subGroupMemberDAO.countDistinctBySubGroupId(sg.getId()));
 			
-			SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(
-					sg.getId(), email);
-			if (userAsSubGroupMember != null) {
+			Optional<SubGroupMember> userAsSubGroupMember =
+					subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(sg.getId(), email);
+			if (userAsSubGroupMember.isPresent()) {
 				sDTO.setAmIMember(true);
-				sDTO.setAmICoordinator(userAsSubGroupMember.getIsCoordinator());
+				sDTO.setAmICoordinator(userAsSubGroupMember.get().getIsCoordinator());
 			} else {
 				sDTO.setAmIMember(false);
 			}
@@ -419,7 +419,7 @@ public class GroupController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public void join(@PathVariable Integer idGroup, @PathVariable String email) {
 		// check if is already member
-		if (groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email) != null) {
+		if (groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email).isPresent()) {
 			return;
 		}
 		

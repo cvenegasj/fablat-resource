@@ -51,11 +51,11 @@ public class SubGroupController {
 		SubGroupDTO sDTO = convertToDTO(subGroup);
 
 		// additional properties
-		SubGroupMember userAsSubGroupMember = subGroupMemberDAO
+		Optional<SubGroupMember> userAsSubGroupMember = subGroupMemberDAO
 				.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
-		if (userAsSubGroupMember != null) {
+		if (userAsSubGroupMember.isPresent()) {
 			sDTO.setAmIMember(true);
-			sDTO.setAmICoordinator(userAsSubGroupMember.getIsCoordinator());
+			sDTO.setAmICoordinator(userAsSubGroupMember.get().getIsCoordinator());
 		} else {
 			sDTO.setAmIMember(false);
 		}
@@ -85,10 +85,10 @@ public class SubGroupController {
 		SubGroupDTO sDTO = convertToDTO(subGroup);
 
 		// additional properties
-		SubGroupMember userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
-		if (userAsSubGroupMember != null) {
+		Optional<SubGroupMember> userAsSubGroupMember = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
+		if (userAsSubGroupMember.isPresent()) {
 			sDTO.setAmIMember(true);
-			sDTO.setAmICoordinator(userAsSubGroupMember.getIsCoordinator());
+			sDTO.setAmICoordinator(userAsSubGroupMember.get().getIsCoordinator());
 		} else {
 			sDTO.setAmIMember(false);
 		}
@@ -224,8 +224,8 @@ public class SubGroupController {
 	@RequestMapping(value = "/{idSubGroup}/leave/{email}", method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public void leave(@PathVariable Integer idSubGroup, @PathVariable String email) {
-		SubGroupMember member = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
-		subGroupMemberDAO.delete(member);
+		Optional<SubGroupMember> member = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
+		subGroupMemberDAO.delete(member.get());
 		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
 		
 		// if the user was the last member, the subgroup disappears
@@ -249,7 +249,7 @@ public class SubGroupController {
         Instant now = Instant.now();
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
         activity.setSubGroup(subGroup);
-        activity.setFabber(member.getGroupMember().getFabber());
+        activity.setFabber(member.get().getGroupMember().getFabber());
         activityLogDAO.save(activity);
 	}
 	
@@ -257,9 +257,9 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void addMember(@PathVariable Integer idSubGroup, @PathVariable String email,
 						  @RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
+		Optional<SubGroupMember> me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
-		if (!me.getIsCoordinator()) {
+		if (!me.get().getIsCoordinator()) {
 			return;
 		}
 		
@@ -279,9 +279,9 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteMember(@PathVariable Integer idSubGroup, @PathVariable String email,
 							 @RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
+		Optional<SubGroupMember> me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
-		if (!me.getIsCoordinator()) {
+		if (!me.get().getIsCoordinator()) {
 			return;
 		}
 		
@@ -293,9 +293,9 @@ public class SubGroupController {
 	@ResponseStatus(HttpStatus.OK)
 	public void nameCoordinator(@PathVariable Integer idSubGroup, @PathVariable String email,
 								@RequestBody SubGroupMemberDTO subGroupMemberDTO) {
-		SubGroupMember me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
+		Optional<SubGroupMember> me = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		// action only allowed to coordinators
-		if (!me.getIsCoordinator()) {
+		if (!me.get().getIsCoordinator()) {
 			return;
 		}
 		

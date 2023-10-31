@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubGroupMemberDAO extends CrudRepository<SubGroupMember, Integer> {
@@ -13,7 +14,7 @@ public interface SubGroupMemberDAO extends CrudRepository<SubGroupMember, Intege
 
 //	Integer countAllByFabberAsCollaborator(String email);
 
-	SubGroupMember findBySubGroupIdAndGroupMemberFabberEmail(Integer idSubGroup, String email);
+	Optional<SubGroupMember> findBySubGroupIdAndGroupMemberFabberEmail(Integer idSubGroup, String email);
 	
 	List<SubGroupMember> findBySubGroup_Id(Integer idSubGroup); // TODO
 	
