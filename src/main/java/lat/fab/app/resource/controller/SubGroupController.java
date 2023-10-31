@@ -177,11 +177,11 @@ public class SubGroupController {
         subGroupDAO.save(subGroup);
 	}
 	
-	@RequestMapping(value = "/{idSubGroup}/join/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idSubGroup}/join/{email}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void join(@PathVariable Integer idSubGroup, @PathVariable String email) {
 		// check if is already member
-		if (subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email) != null) {
+		if (subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email).isPresent()) {
 			return;
 		}
 		

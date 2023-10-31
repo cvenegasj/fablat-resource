@@ -415,7 +415,7 @@ public class GroupController {
 		groupDAO.deleteById(idGroup);
 	}
 	
-	@RequestMapping(value = "/{idGroup}/join/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idGroup}/join/{email}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void join(@PathVariable Integer idGroup, @PathVariable String email) {
 		// check if is already member
