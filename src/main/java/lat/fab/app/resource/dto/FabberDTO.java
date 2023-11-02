@@ -38,4 +38,6 @@ public class FabberDTO {
 
 	// for new landing
 	private List<GroupLandingDto2> groupsJoined;
+	private Integer workshopsCount;
+	private Integer eventsCount;
 }

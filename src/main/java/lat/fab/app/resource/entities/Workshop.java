@@ -31,6 +31,10 @@ public class Workshop implements java.io.Serializable {
 	@Column(name = "description", nullable = false)
 	private String description;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type", nullable = false)
+	private EventType type;
+
 	@Column(name = "startDateTime", nullable = false)
 	private LocalDateTime startDateTime;
 

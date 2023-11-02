@@ -3,9 +3,10 @@ package lat.fab.app.resource.controller;
 import lat.fab.app.resource.dto.*;
 import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.*;
+import lat.fab.app.resource.service.GroupStatsService;
 import lat.fab.app.resource.util.Constants;
 import lat.fab.app.resource.util.EmailServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -24,25 +25,21 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/auth/groups")
+@RequiredArgsConstructor
 public class GroupController {
 
 	private final DateTimeFormatter timeFormatterIn = DateTimeFormatter.ofPattern("h:m a");
 	private final DateTimeFormatter timeFormatterOut = DateTimeFormatter.ofPattern("h:mm a");
 
-	@Autowired
-	private FabberDAO fabberDAO;
-	@Autowired
-	private GroupDAO groupDAO;
-	@Autowired
-	private SubGroupDAO subGroupDAO;
-	@Autowired
-	private GroupMemberDAO groupMemberDAO;
-	@Autowired
-	private SubGroupMemberDAO subGroupMemberDAO;
-	@Autowired
-	private ActivityLogDAO activityLogDAO;
-	@Autowired
-    public EmailServiceImpl emailService;
+
+	private final FabberDAO fabberDAO;
+	private final GroupDAO groupDAO;
+	private final SubGroupDAO subGroupDAO;
+	private final GroupMemberDAO groupMemberDAO;
+	private final SubGroupMemberDAO subGroupMemberDAO;
+	private final ActivityLogDAO activityLogDAO;
+    private final EmailServiceImpl emailService;
+	private final GroupStatsService groupStatsService;
 
 	@GetMapping
 	public List<GroupLandingDto2> findAllLanding(
@@ -63,7 +60,6 @@ public class GroupController {
 							.id(group.getId())
 							.name(group.getName())
 							.description(group.getDescription())
-							.score(0) // TODO
 							.members(
 									groupMemberDAO.findAllByGroupId(group.getId()).stream()
 											.map(gm -> FabberDTO.builder()
@@ -93,7 +89,7 @@ public class GroupController {
 							.id(group.getId())
 							.name(group.getName())
 							.description(group.getDescription())
-							.score(0)
+							.score(groupStatsService.computeGroupScore(group))
 							.members(
 									groupMemberDAO.findAllByGroupId(group.getId()).stream()
 											.map(gm -> FabberDTO.builder()
@@ -139,7 +135,7 @@ public class GroupController {
 							.id(group.getId())
 							.name(group.getName())
 							.description(group.getDescription())
-							.score(0)
+							.score(groupStatsService.computeGroupScore(group))
 							.members(
 									groupMemberDAO.findAllByGroupId(group.getId()).stream()
 											.map(gm -> FabberDTO.builder()
@@ -181,7 +177,7 @@ public class GroupController {
 							.id(group.getId())
 							.name(group.getName())
 							.description(group.getDescription())
-							.score(0)
+//							.score(0)
 							.members(
 									groupMemberDAO.findAllByGroupId(group.getId()).stream()
 											.map(gm -> FabberDTO.builder()

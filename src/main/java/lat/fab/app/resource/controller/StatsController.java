@@ -1,6 +1,8 @@
 package lat.fab.app.resource.controller;
 
-import lat.fab.app.resource.service.UserStatsService;
+import lat.fab.app.resource.repository.FabLabsIoRepository;
+import lat.fab.app.resource.repository.FabberDAO;
+import lat.fab.app.resource.repository.GroupDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +18,17 @@ import java.util.Map;
 @Slf4j
 public class StatsController {
 
-    private final UserStatsService userStatsService;
+    private final FabberDAO fabberDAO;
+    private final GroupDAO groupDAO;
+    private final FabLabsIoRepository fabLabsIoRepository;
 
     @GetMapping("/general")
     public Mono<Map<String, String>> getGeneralStatsLanding() {
-        return userStatsService.getGeneralStatsLanding();
+
+        return fabLabsIoRepository.count()
+                .map(labsCount -> Map.of(
+                        "usersCount", String.valueOf(fabberDAO.count()),
+                        "groupsCount", String.valueOf(groupDAO.count()),
+                        "labsCount", String.valueOf(labsCount)));
     }
-
-
 }

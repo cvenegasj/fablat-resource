@@ -14,4 +14,5 @@ public interface WorkshopDAO extends CrudRepository<Workshop, Integer> {
 	
 	List<Workshop> findBySubGroupId(Integer idSubGroup);
 
+	Integer countDistinctBySubGroup_GroupId(Integer idGroup);
 }

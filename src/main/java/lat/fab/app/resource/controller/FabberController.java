@@ -2,13 +2,11 @@ package lat.fab.app.resource.controller;
 
 import lat.fab.app.resource.dto.FabberDTO;
 import lat.fab.app.resource.dto.GroupLandingDto2;
-import lat.fab.app.resource.entities.Fabber;
-import lat.fab.app.resource.entities.FabberInfo;
-import lat.fab.app.resource.entities.GroupMember;
-import lat.fab.app.resource.entities.RoleFabber;
+import lat.fab.app.resource.entities.*;
 import lat.fab.app.resource.repository.FabberDAO;
 import lat.fab.app.resource.repository.GroupMemberDAO;
 import lat.fab.app.resource.repository.RoleDAO;
+import lat.fab.app.resource.repository.WorkshopTutorDAO;
 import lat.fab.app.resource.service.UserStatsService;
 import lat.fab.app.resource.util.Constants;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +31,7 @@ public class FabberController {
 
 	private final FabberDAO fabberDAO;
 	private final GroupMemberDAO groupMemberDAO;
+	private final WorkshopTutorDAO workshopTutorDAO;
 	private final RoleDAO roleDAO;
 	private final UserStatsService userStatsService;
 
@@ -107,7 +106,8 @@ public class FabberController {
         return fabberDAO.findById(idFabber)
 				.map(fabber -> {
 					FabberDTO dto = this.convertToDTO(fabber);
-					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()),
+							Optional.empty(), Optional.empty());
 					return dto;
 				}).orElse(null);
     }
@@ -124,7 +124,8 @@ public class FabberController {
 		return fabbers.stream()
 				.map(fabber -> {
 					FabberDTO dto = this.convertToDTO(fabber);
-					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()),
+							Optional.empty(), Optional.empty());
 					return dto;
 				})
 				.toList();
@@ -156,8 +157,16 @@ public class FabberController {
 
 		return fabbers
 				.map(fabber -> {
+					int workshopsCount =
+							workshopTutorDAO.countBySubGroupMember_GroupMember_FabberEmail_AndWorkshopTypeIsIn(
+									fabber.getEmail(), List.of(EventType.WORKSHOP));
+					int eventsCount =
+							workshopTutorDAO.countBySubGroupMember_GroupMember_FabberEmail_AndWorkshopTypeIsIn(
+									fabber.getEmail(), List.of(EventType.CONFERENCE, EventType.OTHER));
+
 					FabberDTO dto = this.convertToDTO(fabber);
-					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()),
+							Optional.of(workshopsCount), Optional.of(eventsCount));
 					return dto;
 				});
 	}
@@ -182,7 +191,8 @@ public class FabberController {
 		return fabbers
 				.map(fabber -> {
 					FabberDTO dto = this.convertToDTO(fabber);
-					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()));
+					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()),
+							Optional.empty(), Optional.empty());
 					return dto;
 				});
 	}
@@ -230,7 +240,8 @@ public class FabberController {
 				.build();
 	}
 
-	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers) {
+	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers,
+										 Optional<Integer> workshopsCount, Optional<Integer> eventsCount) {
 		List<GroupLandingDto2> groupLandingDtos = groupMembers.stream()
 				.map(groupMember -> {
 					String groupImgUrl = StringUtils.hasText(groupMember.getGroup().getPhotoUrl())
@@ -245,6 +256,9 @@ public class FabberController {
 							.build();
 				})
 				.toList();
+
 		fabberDTO.setGroupsJoined(groupLandingDtos);
+        workshopsCount.ifPresent(fabberDTO::setWorkshopsCount);
+		eventsCount.ifPresent(fabberDTO::setEventsCount);
 	}
 }
