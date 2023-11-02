@@ -1,4 +1,4 @@
-spring.profiles.active: dev
+spring.profiles.active: prod
 
 server:
   port: 5000
@@ -14,9 +14,6 @@ spring:
 #spring.datasource.url: connection string # to be changed
 #spring.datasource.username: theusername # to be changed
 #spring.datasource.password: thepassword # to be changed
-spring.datasource.url: jdbc:mysql://194.163.136.243:3306/fablat_db
-spring.datasource.username: fab_carlos
-spring.datasource.password: P$21XxPgSHwE1Pp
 
 spring.jpa.show-sql: true
 spring.jpa.properties.hibernate.format_sql: true
