@@ -144,7 +144,7 @@ public class SubGroupController {
 	
 	@RequestMapping(value = "/{idSubGroup}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable("idSubGroup") Integer idSubGroup, @RequestBody SubGroupDTO subGroupDTO) throws ParseException {
+    public void update(@PathVariable("idSubGroup") Integer idSubGroup, @RequestBody SubGroupDTO subGroupDTO) {
 		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
 		subGroup.setName(subGroupDTO.getName());
 		subGroup.setDescription(subGroupDTO.getDescription());

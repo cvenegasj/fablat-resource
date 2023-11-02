@@ -6,7 +6,10 @@ import lat.fab.app.resource.entities.Fabber;
 import lat.fab.app.resource.entities.FabberInfo;
 import lat.fab.app.resource.entities.GroupMember;
 import lat.fab.app.resource.entities.RoleFabber;
-import lat.fab.app.resource.repository.*;
+import lat.fab.app.resource.repository.FabberDAO;
+import lat.fab.app.resource.repository.GroupMemberDAO;
+import lat.fab.app.resource.repository.RoleDAO;
+import lat.fab.app.resource.service.UserStatsService;
 import lat.fab.app.resource.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +32,10 @@ import java.util.Set;
 public class FabberController {
 
 	private final FabberDAO fabberDAO;
-	private final LabDAO labDAO;
 	private final GroupMemberDAO groupMemberDAO;
-	private final SubGroupMemberDAO subGroupMemberDAO;
-	private final WorkshopTutorDAO workshopTutorDAO;
 	private final RoleDAO roleDAO;
+	private final UserStatsService userStatsService;
+
 
 	@PostMapping("/createOrUpdateUser")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -87,36 +89,16 @@ public class FabberController {
 	@GetMapping("/me/general/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
-		// update the scores info 
-		calculateAndUpdateScores(email);
-		// user logged in with email as username
-		Fabber fabber = fabberDAO.findByEmail(email).get();
-		return convertToDTO(fabber);
-	}
-	
-	private void calculateAndUpdateScores(String email) {
-		Integer replicatorScore = workshopTutorDAO.countBySubGroupMember_GroupMember_FabberEmail(email);
-		Integer collaboratorScore = groupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, false)
-										+ subGroupMemberDAO.countByGroupMember_Fabber_EmailAndIsCoordinatorIs(email, false);
-		Integer coordinatorScore = groupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, true)
-										+ subGroupMemberDAO.countByGroupMember_Fabber_EmailAndIsCoordinatorIs(email, true);
-		Integer generalScore = replicatorScore + collaboratorScore + coordinatorScore;
-		
-		Fabber fabber = fabberDAO.findByEmail(email).get();
-		fabber.getFabberInfo().setScoreGeneral(generalScore);
-		fabber.getFabberInfo().setScoreCoordinator(coordinatorScore);
-		fabber.getFabberInfo().setScoreCollaborator(collaboratorScore);
-		fabber.getFabberInfo().setScoreReplicator(replicatorScore);
-		
-		fabberDAO.save(fabber);
+		Fabber user = fabberDAO.findByEmail(email).get();
+		Fabber userUpdated = userStatsService.updateFabberScores(user);
+		return convertToDTO(userUpdated);
 	}
 		
 	@GetMapping("/me/profile/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public FabberDTO getMyProfile(@PathVariable String email) {
 		Fabber fabber = fabberDAO.findByEmail(email).get();
-		FabberDTO fabberDTO = convertToDTO(fabber);
-		return fabberDTO;
+        return convertToDTO(fabber);
 	}
 	
 	@GetMapping(value = "/{idFabber}")
@@ -217,22 +199,7 @@ public class FabberController {
         return convertToDTO(persisted);
     }
 
-	// TODO: remove later
-	@GetMapping("/count")
-	@ResponseStatus(HttpStatus.OK)
-	public long countAll() {
-		return fabberDAO.count();
-	}
 
-	@GetMapping("/set-country-all")
-	@ResponseStatus(HttpStatus.OK)
-	public void setCountryForAll() {
-		fabberDAO.findAll()
-				.forEach(fabber -> {
-					fabber.setCountry("PER");
-					fabberDAO.save(fabber);
-				});
-	}
 	
 	// ========== DTO conversion ==========
 	private FabberDTO convertToDTO(Fabber fabber) {
