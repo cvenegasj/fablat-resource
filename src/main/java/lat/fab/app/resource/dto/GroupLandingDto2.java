@@ -17,5 +17,7 @@ public class GroupLandingDto2 {
     private Integer score;
     private List<FabberDTO> members;
     private Integer membersCount;
+    private Integer workshopsCount;
+    private Integer eventsCount;
     private String imgUrl;
 }

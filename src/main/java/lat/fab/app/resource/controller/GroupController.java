@@ -37,6 +37,7 @@ public class GroupController {
 	private final SubGroupDAO subGroupDAO;
 	private final GroupMemberDAO groupMemberDAO;
 	private final SubGroupMemberDAO subGroupMemberDAO;
+	private final WorkshopDAO workshopDAO;
 	private final ActivityLogDAO activityLogDAO;
     private final EmailServiceImpl emailService;
 	private final GroupStatsService groupStatsService;
@@ -100,6 +101,10 @@ public class GroupController {
 													.build())
 											.toList())
 							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.workshopsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.WORKSHOP)))
+							.eventsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.CONFERENCE, EventType.OTHER)))
 							.imgUrl(groupImgUrl)
 							.build();
 				})
@@ -145,6 +150,10 @@ public class GroupController {
 													.build())
 											.toList())
 							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.workshopsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.WORKSHOP)))
+							.eventsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.CONFERENCE, EventType.OTHER)))
 							.imgUrl(groupImgUrl)
 							.build();
 				});
@@ -187,6 +196,10 @@ public class GroupController {
 													.build())
 											.toList())
 							.membersCount(groupMemberDAO.countDistinctByGroupId(group.getId()))
+							.workshopsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.WORKSHOP)))
+							.eventsCount(workshopDAO.countDistinctBySubGroup_GroupId_AndTypeIsIn(
+									group.getId(), List.of(EventType.CONFERENCE, EventType.OTHER)))
 							.imgUrl(groupImgUrl)
 							.build();
 				});
