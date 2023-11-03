@@ -45,7 +45,7 @@ public class WorkshopController {
 		List<WorkshopDTO> returnList = new ArrayList<>();
 		
         // find all workshops after today
-		for (Workshop w : workshopDAO.findByStartDateTimeAfter(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC))) {
+		for (Workshop w : workshopDAO.findByStartDateTimeAfterOrderByStartDateTimeAsc(LocalDateTime.now())) {
 			WorkshopDTO wDTO = convertToDTO(w);
 			// workshop's tutors
 			List<WorkshopTutorDTO> tutors = new ArrayList<>();

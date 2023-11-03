@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface WorkshopDAO extends CrudRepository<Workshop, Integer> {
 	
-	List<Workshop> findByStartDateTimeAfter(LocalDateTime date);
+	List<Workshop> findByStartDateTimeAfterOrderByStartDateTimeAsc(LocalDateTime date);
 	
 	List<Workshop> findBySubGroupId(Integer idSubGroup);
 

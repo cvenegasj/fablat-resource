@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,7 @@ public class WorkshopPublicController {
 		List<WorkshopDTO> returnList = new ArrayList<>();
 		
         // find all workshops after today
-		for (Workshop w : workshopDAO.findByStartDateTimeAfter(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC))) {
+		for (Workshop w : workshopDAO.findByStartDateTimeAfterOrderByStartDateTimeAsc(LocalDateTime.now())) {
 			WorkshopDTO wDTO = convertToDTO(w);
 			// workshop's tutors
 			List<WorkshopTutorDTO> tutors = new ArrayList<>();
