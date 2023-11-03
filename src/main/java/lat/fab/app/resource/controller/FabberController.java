@@ -51,7 +51,8 @@ public class FabberController {
             retrievedUser.get().setAvatarUrl((String) jwtAuthToken.getTokenAttributes().get("picture"));
 
             Fabber persisted = fabberDAO.save(retrievedUser.get());
-            return convertToDTO(persisted);
+			Fabber updated = userStatsService.updateFabberScores(persisted);
+            return convertToDTO(updated);
         } else { // otherwise, create new user
             Fabber newUser = Fabber.builder()
                     .email((String) jwtAuthToken.getTokenAttributes().get("email"))
@@ -85,13 +86,12 @@ public class FabberController {
         }
 	}
 	
-	@GetMapping("/me/general/{email}")
-	@ResponseStatus(HttpStatus.OK)
-	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
-		Fabber user = fabberDAO.findByEmail(email).get();
-		Fabber userUpdated = userStatsService.updateFabberScores(user);
-		return convertToDTO(userUpdated);
-	}
+//	@GetMapping("/me/general/{email}")
+//	@ResponseStatus(HttpStatus.OK)
+//	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
+//		Fabber user = fabberDAO.findByEmail(email).get();
+//		return convertToDTO(userUpdated);
+//	}
 		
 	@GetMapping("/me/profile/{email}")
 	@ResponseStatus(HttpStatus.OK)
