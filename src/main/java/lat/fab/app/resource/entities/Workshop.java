@@ -22,7 +22,7 @@ public class Workshop implements java.io.Serializable {
 	@Column(name = "idWorkshop", unique = true, nullable = false)
 	private Integer id;
 
-	@Column(name = "replicationNumber", nullable = false)
+	@Column(name = "replicationNumber")
 	private Integer replicationNumber;
 
 	@Column(name = "name", nullable = false)

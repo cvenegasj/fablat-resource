@@ -337,6 +337,7 @@ public class SubGroupController {
 		WorkshopDTO wDTO = new WorkshopDTO();
 		wDTO.setIdWorkshop(workshop.getId());
 		wDTO.setReplicationNumber(workshop.getReplicationNumber());
+		wDTO.setType(workshop.getType());
 		wDTO.setName(workshop.getName());
 		// workshopDTO.setDescription(workshop.getDescription());
 		wDTO.setStartDate(dateFormatter.format(workshop.getStartDateTime()));

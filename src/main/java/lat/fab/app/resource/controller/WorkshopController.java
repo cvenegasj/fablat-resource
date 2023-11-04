@@ -82,9 +82,9 @@ public class WorkshopController {
 		return wDTO;
 	}
 	
-	@RequestMapping(value = "/{email}", method = RequestMethod.POST)
+	@PostMapping("/{email}")
     @ResponseStatus(HttpStatus.CREATED)
-    public WorkshopDTO create(@PathVariable String email, @RequestBody WorkshopDTO workshopDTO) throws ParseException {
+    public WorkshopDTO create(@PathVariable String email, @RequestBody WorkshopDTO workshopDTO) {
 		Workshop workshop = convertToEntity(workshopDTO);
 		workshop.setEnabled(true);
 		// set creation datetime 
@@ -95,7 +95,8 @@ public class WorkshopController {
         workshop.setSubGroup(subGroupDAO.findById(workshopDTO.getSubGroupId()).get());
         // Creator
         WorkshopTutor wt = new WorkshopTutor();
-        wt.setSubGroupMember(subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(workshopDTO.getSubGroupId(), email).get());
+        wt.setSubGroupMember(subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(
+				workshopDTO.getSubGroupId(), email).get());
         wt.setWorkshop(workshop);
         workshop.getWorkshopTutors().add(wt);
         
@@ -113,29 +114,16 @@ public class WorkshopController {
         } else {
         	workshop.setLocation(locationDAO.findById(workshopDTO.getLocationId()).get());
         }
-        
-        // replication number: inserting and updating
-        workshop.setReplicationNumber(workshop.getSubGroup().getWorkshops().size() + 1);
+
         Workshop workshopCreated = workshopDAO.save(workshop);
-        // then updating the replication number of the workshops
-        updateReplicationNumbers(workshopDTO.getSubGroupId());
-		
 		return convertToDTO(workshopCreated);
 	}
 	
-	private void updateReplicationNumbers(Integer idSubGroup) {
-		int i = 1;
-		for (Workshop w : subGroupDAO.findById(idSubGroup).get().getWorkshops()) {
-        	w.setReplicationNumber(i);
-        	workshopDAO.save(w);
-        	i++;
-        }
-	}
-	
-	@RequestMapping(value = "/{idWorkshop}", method = RequestMethod.PUT)
+	@PutMapping("/{idWorkshop}")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable("idWorkshop") Integer idWorkshop, @RequestBody WorkshopDTO workshopDTO) throws ParseException {
+    public void update(@PathVariable("idWorkshop") Integer idWorkshop, @RequestBody WorkshopDTO workshopDTO) {
 		Workshop workshop = workshopDAO.findById(idWorkshop).get();
+		workshop.setType(workshopDTO.getType());
 		workshop.setName(workshopDTO.getName());
 		workshop.setDescription(workshopDTO.getDescription());
 		workshop.setStartDateTime(LocalDateTime.parse(workshopDTO.getStartDate() + " " + workshopDTO.getStartTime(), dateTimeFormatterIn));
@@ -161,67 +149,64 @@ public class WorkshopController {
 		}
 		
 		workshopDAO.save(workshop);
-		updateReplicationNumbers(workshop.getSubGroup().getId());
 	}
 	
-	@RequestMapping(value = "/{idWorkshop}", method = RequestMethod.DELETE)
+	@DeleteMapping("/{idWorkshop}")
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable("idWorkshop") Integer idWorkshop) {
 		Workshop workshop = workshopDAO.findById(idWorkshop).get();
-		SubGroup subGroup = workshop.getSubGroup();
 		workshopDAO.delete(workshop);
-		// update replication numbers
-		updateReplicationNumbers(subGroup.getId());
 	}
 	
 	
 	// ========== DTO conversion ==========
 	
 	private WorkshopDTO convertToDTO(Workshop workshop) {
-		WorkshopDTO wDTO = new WorkshopDTO();
-		wDTO.setIdWorkshop(workshop.getId());
-		wDTO.setReplicationNumber(workshop.getReplicationNumber());
-		wDTO.setName(workshop.getName());
-		wDTO.setDescription(workshop.getDescription());
-		wDTO.setStartDate(dateFormatter.format(workshop.getStartDateTime()));
-		wDTO.setStartTime(timeFormatter.format(workshop.getStartDateTime()));
-		wDTO.setEndDate(dateFormatter.format(workshop.getEndDateTime()));
-		wDTO.setEndTime(timeFormatter.format(workshop.getEndDateTime()));
-		
-		wDTO.setStartDateDay(workshop.getStartDateTime().getDayOfMonth());
-		wDTO.setStartDateMonth(monthFormatter.format(workshop.getStartDateTime()));
-		wDTO.setStartDateFormatted(dateFormatter2.format(workshop.getStartDateTime()));
-		wDTO.setEndDateFormatted(dateFormatter2.format(workshop.getEndDateTime()));
-		
-		wDTO.setStartDateTimeISO(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getStartDateTime()));
-		wDTO.setEndDateTimeISO(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getEndDateTime()));
-		
-		wDTO.setStartDateTimeCalendar(dateTimeFormatterCalendar.format(workshop.getStartDateTime()));
-		wDTO.setEndDateTimeCalendar(dateTimeFormatterCalendar.format(workshop.getEndDateTime()));
-		
-		wDTO.setIsPaid(workshop.getIsPaid());
-		wDTO.setPrice(workshop.getPrice());
-		wDTO.setCurrency(workshop.getCurrency());
-		wDTO.setFacebookUrl(workshop.getFacebookUrl());
-		wDTO.setTicketsUrl(workshop.getTicketsUrl());
-		wDTO.setCreationDateTime(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getCreationDateTime()));
-		wDTO.setLocationId(workshop.getLocation().getId());
-		wDTO.setLocationAddress(workshop.getLocation().getAddress1());
-		wDTO.setLocationCity(workshop.getLocation().getCity());
-		wDTO.setLocationCountry(workshop.getLocation().getCountry());
-		wDTO.setLocationLatitude(workshop.getLocation().getLatitude());
-		wDTO.setLocationLongitude(workshop.getLocation().getLongitude());
-		wDTO.setLabName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null);
-		wDTO.setSubGroupId(workshop.getSubGroup().getId());
-		wDTO.setSubGroupName(workshop.getSubGroup().getName());
-		wDTO.setGroupId(workshop.getSubGroup().getGroup().getId());
-		wDTO.setGroupName(workshop.getSubGroup().getGroup().getName());
-		
-		return wDTO;
+		return WorkshopDTO.builder()
+				.idWorkshop(workshop.getId())
+				.replicationNumber(workshop.getReplicationNumber())
+				.name(workshop.getName())
+				.type(workshop.getType())
+				.description(workshop.getDescription())
+				.startDate(dateFormatter.format(workshop.getStartDateTime()))
+				.startTime(timeFormatter.format(workshop.getStartDateTime()))
+				.endDate(dateFormatter.format(workshop.getEndDateTime()))
+				.endTime(timeFormatter.format(workshop.getEndDateTime()))
+
+				.startDateDay(workshop.getStartDateTime().getDayOfMonth())
+				.startDateMonth(monthFormatter.format(workshop.getStartDateTime()))
+				.startDateFormatted(dateFormatter2.format(workshop.getStartDateTime()))
+				.endDateFormatted(dateFormatter2.format(workshop.getEndDateTime()))
+
+				.startDateTimeISO(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getStartDateTime()))
+				.endDateTimeISO(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getEndDateTime()))
+
+				.startDateTimeCalendar(dateTimeFormatterCalendar.format(workshop.getStartDateTime()))
+				.endDateTimeCalendar(dateTimeFormatterCalendar.format(workshop.getEndDateTime()))
+
+				.isPaid(workshop.getIsPaid())
+				.price(workshop.getPrice())
+				.currency(workshop.getCurrency())
+				.facebookUrl(workshop.getFacebookUrl())
+				.ticketsUrl(workshop.getTicketsUrl())
+				.creationDateTime(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(workshop.getCreationDateTime()))
+				.locationId(workshop.getLocation().getId())
+				.locationAddress(workshop.getLocation().getAddress1())
+				.locationCity(workshop.getLocation().getCity())
+				.locationCountry(workshop.getLocation().getCountry())
+				.locationLatitude(workshop.getLocation().getLatitude())
+				.locationLongitude(workshop.getLocation().getLongitude())
+				.labName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null)
+				.subGroupId(workshop.getSubGroup().getId())
+				.subGroupName(workshop.getSubGroup().getName())
+				.groupId(workshop.getSubGroup().getGroup().getId())
+				.groupName(workshop.getSubGroup().getGroup().getName())
+				.build();
 	}
 	
-	private Workshop convertToEntity(WorkshopDTO wDTO) throws ParseException {
+	private Workshop convertToEntity(WorkshopDTO wDTO) {
 		Workshop w = new Workshop();
+		w.setType(wDTO.getType());
 		w.setName(wDTO.getName());
 		w.setDescription(wDTO.getDescription());
 		// format the date and time strings
