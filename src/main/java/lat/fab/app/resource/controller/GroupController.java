@@ -18,10 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/auth/groups")
@@ -456,22 +453,23 @@ public class GroupController {
         activityLogDAO.save(activity);
 	}
 	
-	@RequestMapping(value = "/{idGroup}/leave/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idGroup}/leave/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void leave(@PathVariable Integer idGroup, @PathVariable String email) {
 		Optional<GroupMember> member = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
-		groupMemberDAO.save(member.get());
-		Group group = groupDAO.findById(idGroup).get();
+		groupMemberDAO.delete(member.get());
 		
 		// if the user was the last member, the group disappears
-		if (groupMemberDAO.countDistinctByGroupId(group.getId()) == 0) {
-			groupDAO.save(group);
+		if (groupMemberDAO.countDistinctByGroupId(idGroup) == 0) {
+			groupDAO.delete(groupDAO.findById(idGroup).get());
 			return;
 		}
 		
 		// if the user was the only coordinator, assign the oldest member as coordinator
-		if (!groupMemberDAO.findAllByGroupId(idGroup).stream().anyMatch(item -> item.getIsCoordinator())) {
-			GroupMember oldestMember = groupMemberDAO.findAllByGroupId(idGroup).stream().findFirst().get();
+		if (groupMemberDAO.findAllByGroupId(idGroup).stream().noneMatch(GroupMember::getIsCoordinator)) {
+			GroupMember oldestMember = groupMemberDAO.findAllByGroupId(idGroup).stream()
+					.min(Comparator.comparing(GroupMember::getCreationDateTime))
+					.get();
 			oldestMember.setIsCoordinator(true);		
 			groupMemberDAO.save(oldestMember);
 		}
@@ -483,12 +481,12 @@ public class GroupController {
         activity.setVisibility(Constants.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
         Instant now = Instant.now();
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
-        activity.setGroup(group);
+        activity.setGroup(groupDAO.findById(idGroup).get());
         activity.setFabber(member.get().getFabber());
         activityLogDAO.save(activity);
 	}
 	
-	@RequestMapping(value = "/{idGroup}/members", method = RequestMethod.POST)
+	@PostMapping("/{idGroup}/members")
 	@ResponseStatus(HttpStatus.OK)
 	public void addMember(@PathVariable Integer idGroup, @RequestBody GroupMemberDTO groupMemberDTO) {
 		//GroupMember me = groupMemberDAO.findByGroupAndFabber(idGroup, principal.getName());
@@ -514,10 +512,10 @@ public class GroupController {
 		groupMemberDAO.save(gm);
 	}
 	
-	@RequestMapping(value = "/{idGroup}/members/{idGroupMember}/{email}", method = RequestMethod.DELETE)
+	@DeleteMapping("/{idGroup}/members/{idGroupMember}/{email}")
 	@ResponseStatus(HttpStatus.OK)
-	public void deleteMember(
-			@PathVariable Integer idGroup, @PathVariable Integer idGroupMember, @PathVariable String email) {
+	public void deleteMember(@PathVariable Integer idGroup, @PathVariable Integer idGroupMember,
+							 @PathVariable String email) {
 		Optional<GroupMember> me = groupMemberDAO.findByGroupIdAndFabberEmail(idGroup, email);
 		// action only allowed to coordinators
 		if (!me.get().getIsCoordinator()) {
@@ -525,7 +523,7 @@ public class GroupController {
 		}
 		
 		GroupMember member = groupMemberDAO.findById(idGroupMember).get();
-		groupMemberDAO.save(member);
+		groupMemberDAO.delete(member);
 	}
 	
 	@RequestMapping(value = "/{idGroup}/members/send-invitation-email", method = RequestMethod.POST)
@@ -563,7 +561,7 @@ public class GroupController {
 		return models;
 	}
 	
-	@RequestMapping(value = "/{idGroup}/name-coordinator/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idGroup}/name-coordinator/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void nameCoordinator(
 			@PathVariable Integer idGroup, @PathVariable String email, @RequestBody GroupMemberDTO groupMemberDTO) {

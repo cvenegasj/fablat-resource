@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -142,7 +142,7 @@ public class SubGroupController {
 		return convertToDTO(subGroupCreated);
 	}
 	
-	@RequestMapping(value = "/{idSubGroup}", method = RequestMethod.PUT)
+	@PutMapping("/{idSubGroup}")
     @ResponseStatus(HttpStatus.OK)
     public void update(@PathVariable("idSubGroup") Integer idSubGroup, @RequestBody SubGroupDTO subGroupDTO) {
 		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
@@ -157,7 +157,7 @@ public class SubGroupController {
 		subGroupDAO.save(subGroup);
     }
 	
-	@RequestMapping(value = "/{idSubGroup}/{email}", method = RequestMethod.DELETE)
+	@DeleteMapping("/{idSubGroup}/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@PathVariable Integer idSubGroup, @PathVariable String email) {
 		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
@@ -174,7 +174,7 @@ public class SubGroupController {
 				groupMemberDAO.findByGroupIdAndFabberEmail(subGroup.getGroup().getId(), email).get().getFabber());
         
         activityLogDAO.save(activity);
-        subGroupDAO.save(subGroup);
+        subGroupDAO.delete(subGroup);
 	}
 	
 	@PostMapping("/{idSubGroup}/join/{email}")
@@ -221,22 +221,23 @@ public class SubGroupController {
         activityLogDAO.save(activity);
 	}
 	
-	@RequestMapping(value = "/{idSubGroup}/leave/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idSubGroup}/leave/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void leave(@PathVariable Integer idSubGroup, @PathVariable String email) {
 		Optional<SubGroupMember> member = subGroupMemberDAO.findBySubGroupIdAndGroupMemberFabberEmail(idSubGroup, email);
 		subGroupMemberDAO.delete(member.get());
-		SubGroup subGroup = subGroupDAO.findById(idSubGroup).get();
 		
 		// if the user was the last member, the subgroup disappears
-		if (subGroupMemberDAO.findBySubGroup_Id(subGroup.getId()).size() == 0) {
-			subGroupDAO.delete(subGroup);
+		if (subGroupMemberDAO.findBySubGroup_Id(idSubGroup).isEmpty()) {
+			subGroupDAO.delete(subGroupDAO.findById(idSubGroup).get());
 			return;
 		}
 		
 		// if the user was the only coordinator, assign the oldest member as coordinator
-		if (!subGroupMemberDAO.findBySubGroup_Id(subGroup.getId()).stream().anyMatch(item -> item.getIsCoordinator())) {
-			SubGroupMember oldestMember = subGroupMemberDAO.findBySubGroup_Id(subGroup.getId()).stream().findFirst().get();
+		if (subGroupMemberDAO.findBySubGroup_Id(idSubGroup).stream().noneMatch(SubGroupMember::getIsCoordinator)) {
+			SubGroupMember oldestMember = subGroupMemberDAO.findBySubGroup_Id(idSubGroup).stream()
+					.min(Comparator.comparing(SubGroupMember::getCreationDateTime))
+					.get();
 			oldestMember.setIsCoordinator(true);		
 			subGroupMemberDAO.save(oldestMember);
 		}
@@ -248,7 +249,7 @@ public class SubGroupController {
         activity.setVisibility(Constants.ACTIVITY_VISIBILITY_INTERNAL); // internal visibility
         Instant now = Instant.now();
         activity.setCreationDateTime(LocalDateTime.ofInstant(now, ZoneOffset.UTC));
-        activity.setSubGroup(subGroup);
+        activity.setSubGroup(subGroupDAO.findById(idSubGroup).get());
         activity.setFabber(member.get().getGroupMember().getFabber());
         activityLogDAO.save(activity);
 	}
@@ -275,7 +276,7 @@ public class SubGroupController {
 		subGroupMemberDAO.save(sgm);
 	}
 	
-	@RequestMapping(value = "/{idSubGroup}/delete-member/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idSubGroup}/delete-member/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void deleteMember(@PathVariable Integer idSubGroup, @PathVariable String email,
 							 @RequestBody SubGroupMemberDTO subGroupMemberDTO) {
@@ -286,10 +287,10 @@ public class SubGroupController {
 		}
 		
 		SubGroupMember member = subGroupMemberDAO.findById(subGroupMemberDTO.getIdSubGroupMember()).get();
-		subGroupMemberDAO.save(member);
+		subGroupMemberDAO.delete(member);
 	}
 	
-	@RequestMapping(value = "/{idSubGroup}/name-coordinator/{email}", method = RequestMethod.POST)
+	@PostMapping("/{idSubGroup}/name-coordinator/{email}")
 	@ResponseStatus(HttpStatus.OK)
 	public void nameCoordinator(@PathVariable Integer idSubGroup, @PathVariable String email,
 								@RequestBody SubGroupMemberDTO subGroupMemberDTO) {
