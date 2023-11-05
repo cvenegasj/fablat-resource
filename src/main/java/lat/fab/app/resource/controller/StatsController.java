@@ -25,7 +25,7 @@ public class StatsController {
     @GetMapping("/general")
     public Mono<Map<String, String>> getGeneralStatsLanding() {
 
-        return fabLabsIoRepository.count()
+        return fabLabsIoRepository.countLabsLatam()
                 .map(labsCount -> Map.of(
                         "usersCount", String.valueOf(fabberDAO.count()),
                         "groupsCount", String.valueOf(groupDAO.count()),

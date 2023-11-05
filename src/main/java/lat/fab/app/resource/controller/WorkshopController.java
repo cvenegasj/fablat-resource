@@ -3,7 +3,6 @@ package lat.fab.app.resource.controller;
 import lat.fab.app.resource.dto.WorkshopDTO;
 import lat.fab.app.resource.dto.WorkshopTutorDTO;
 import lat.fab.app.resource.entities.Location;
-import lat.fab.app.resource.entities.SubGroup;
 import lat.fab.app.resource.entities.Workshop;
 import lat.fab.app.resource.entities.WorkshopTutor;
 import lat.fab.app.resource.repository.*;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
