@@ -6,19 +6,25 @@ import lat.fab.app.resource.entities.Location;
 import lat.fab.app.resource.entities.Workshop;
 import lat.fab.app.resource.entities.WorkshopTutor;
 import lat.fab.app.resource.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lat.fab.app.resource.util.Constants;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth/workshops")
+@RequiredArgsConstructor
 public class WorkshopController {
 	private final DateTimeFormatter dateTimeFormatterIn = DateTimeFormatter.ofPattern("d-M-yyyy h:m a"); // for creation/update
 	private final DateTimeFormatter dateTimeFormatterCalendar = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"); // for google calendar
@@ -26,19 +32,14 @@ public class WorkshopController {
 	private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
 	private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM");
 	private final DateTimeFormatter dateFormatter2 = DateTimeFormatter.ofPattern("MMM d(EEE) h:mm a");
+
+	private final SubGroupDAO subGroupDAO;
+	private final SubGroupMemberDAO subGroupMemberDAO;
+	private final WorkshopDAO workshopDAO;
+	private final WorkshopTutorDAO workshopTutorDAO;
+	private final LocationDAO locationDAO;
 	
-	@Autowired
-	private SubGroupDAO subGroupDAO;
-	@Autowired
-	private SubGroupMemberDAO subGroupMemberDAO;
-	@Autowired
-	private WorkshopDAO workshopDAO;
-	@Autowired
-	private WorkshopTutorDAO workshopTutorDAO;
-	@Autowired
-	private LocationDAO locationDAO;
-	
-	@RequestMapping(value = "/upcoming", method = RequestMethod.GET)
+	@GetMapping("/upcoming")
     public List<WorkshopDTO> findUpcoming() {
 		List<WorkshopDTO> returnList = new ArrayList<>();
 		
@@ -58,7 +59,7 @@ public class WorkshopController {
 		return returnList;
 	}
 	
-	@RequestMapping(value = "/{idWorkshop}/{email}", method = RequestMethod.GET)
+	@GetMapping("/{idWorkshop}/{email}")
     public WorkshopDTO findOne(@PathVariable Integer idWorkshop, @PathVariable String email) {
 		Workshop workshop = workshopDAO.findById(idWorkshop).get();
 		WorkshopDTO wDTO = convertToDTO(workshop);
@@ -131,6 +132,7 @@ public class WorkshopController {
 		workshop.setCurrency(workshopDTO.getCurrency());
 		workshop.setFacebookUrl(workshopDTO.getFacebookUrl());
 		workshop.setTicketsUrl(workshopDTO.getTicketsUrl());
+
 		if (workshopDTO.getLocationId() != null) {
 			workshop.setLocation(locationDAO.findById(workshopDTO.getLocationId()).get());
 		} else if (workshopDTO.getLocationAddress() != null && workshopDTO.getLocationCity() != null 
@@ -154,6 +156,63 @@ public class WorkshopController {
 	public void delete(@PathVariable("idWorkshop") Integer idWorkshop) {
 		Workshop workshop = workshopDAO.findById(idWorkshop).get();
 		workshopDAO.delete(workshop);
+	}
+
+	@GetMapping(value = "/{idWorkshop}")
+	@ResponseStatus(HttpStatus.OK)
+	public WorkshopDTO findOneLanding(@PathVariable("idWorkshop") Integer idWorkshop) {
+		return workshopDAO.findById(idWorkshop)
+				.map(workshop -> {
+					WorkshopDTO dto = convertToDTO(workshop);
+					dto.setTutors(workshop.getWorkshopTutors().stream()
+							.map(this::convertToDTO)
+							.toList());
+					return dto;
+				})
+				.orElse(null);
+	}
+
+	@GetMapping("/filter")
+	@ResponseStatus(HttpStatus.OK)
+	public Page<WorkshopDTO> findAllLandingWithFilter(
+			@RequestParam Integer page,
+			@RequestParam Integer size,
+			@RequestParam boolean past,
+			@RequestParam Optional<String> name, // workshop name
+			@RequestParam Optional<List<String>> countries) { // comma-separated list of countries keys
+
+		PageRequest pagination = PageRequest.of(page, size);
+
+		String nameFilter = name.map(s -> "%" + s + "%").orElse("%");
+		Page<Workshop> workshops = null;
+
+		if (name.isPresent() && countries.isPresent()) {
+			workshops = past
+					? workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+							nameFilter, countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+					: workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+							nameFilter, countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+		} else if (name.isPresent()) {
+			workshops = past
+					? workshopDAO.findByNameContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+							nameFilter, LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+					: workshopDAO.findByNameContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
+							nameFilter, LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+		} else if (countries.isPresent()) {
+			workshops = past
+					? workshopDAO.findByLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+							countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+					: workshopDAO.findByLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+							countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+		} else {
+			workshops = past
+					? workshopDAO.findByStartDateTimeBeforeOrderByStartDateTimeDesc(
+							LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+					: workshopDAO.findByStartDateTimeAfterOrderByStartDateTimeAsc(
+							LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+		}
+
+		return workshops.map(this::convertToDTO);
 	}
 	
 	

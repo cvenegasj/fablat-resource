@@ -35,7 +35,6 @@ public class FabberController {
 	private final RoleDAO roleDAO;
 	private final UserStatsService userStatsService;
 
-
 	@PostMapping("/createOrUpdateUser")
 	@ResponseStatus(HttpStatus.CREATED)
 	public FabberDTO createOrUpdateUser(@AuthenticationPrincipal JwtAuthenticationToken jwtAuthToken) {
@@ -102,14 +101,15 @@ public class FabberController {
 	
 	@GetMapping(value = "/{idFabber}")
 	@ResponseStatus(HttpStatus.OK)
-    public FabberDTO findOneLandind(@PathVariable("idFabber") Integer idFabber) {
+    public FabberDTO findOneLanding(@PathVariable("idFabber") Integer idFabber) {
         return fabberDAO.findById(idFabber)
 				.map(fabber -> {
 					FabberDTO dto = this.convertToDTO(fabber);
 					addNewFieldsToFabberDto(dto, groupMemberDAO.findAllByFabberId(fabber.getId()),
 							Optional.empty(), Optional.empty());
 					return dto;
-				}).orElse(null);
+				})
+				.orElse(null);
     }
 
 	@GetMapping

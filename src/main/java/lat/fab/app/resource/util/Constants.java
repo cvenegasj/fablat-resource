@@ -31,4 +31,6 @@ public class Constants {
 	// public static final List<Country> countriesList = CountriesJsonParser.fromJsonFileToList();
 
 	// public static final Map<String, Country> countriesMap = CountriesJsonParser.fromListToMap(countriesList);
+
+	public static final String LIMA_ZONE_ID = "America/Lima";
 }
