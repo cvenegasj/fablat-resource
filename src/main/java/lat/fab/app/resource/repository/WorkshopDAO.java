@@ -19,16 +19,16 @@ public interface WorkshopDAO extends CrudRepository<Workshop, Integer> {
 
 	Page<Workshop> findByStartDateTimeBeforeOrderByStartDateTimeDesc(LocalDateTime date, Pageable pageable);
 
-	Page<Workshop> findByNameContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+	Page<Workshop> findByNameIgnoreCaseContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
 			String name, List<String> countriesKeys, LocalDateTime dateTime, Pageable pageable);
 
-	Page<Workshop> findByNameContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+	Page<Workshop> findByNameIgnoreCaseContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
 			String name, List<String> countriesKeys, LocalDateTime dateTime, Pageable pageable);
 
-	Page<Workshop> findByNameContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
+	Page<Workshop> findByNameIgnoreCaseContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
 			String name, LocalDateTime dateTime, Pageable pageable);
 
-	Page<Workshop> findByNameContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+	Page<Workshop> findByNameIgnoreCaseContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
 			String name, LocalDateTime dateTime, Pageable pageable);
 
 	Page<Workshop> findByLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(

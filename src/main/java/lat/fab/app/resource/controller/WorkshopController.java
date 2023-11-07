@@ -187,15 +187,15 @@ public class WorkshopController {
 
 		if (name.isPresent() && countries.isPresent()) {
 			workshops = past
-					? workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+					? workshopDAO.findByNameIgnoreCaseContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
 							name.get(), countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
-					: workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
+					: workshopDAO.findByNameIgnoreCaseContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
 							name.get(), countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
 		} else if (name.isPresent()) {
 			workshops = past
-					? workshopDAO.findByNameContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
+					? workshopDAO.findByNameIgnoreCaseContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
 							name.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
-					: workshopDAO.findByNameContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
+					: workshopDAO.findByNameIgnoreCaseContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
 							name.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
 		} else if (countries.isPresent()) {
 			workshops = past
