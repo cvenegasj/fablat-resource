@@ -183,21 +183,20 @@ public class WorkshopController {
 
 		PageRequest pagination = PageRequest.of(page, size);
 
-		String nameFilter = name.map(s -> "%" + s + "%").orElse("%");
 		Page<Workshop> workshops = null;
 
 		if (name.isPresent() && countries.isPresent()) {
 			workshops = past
 					? workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(
-							nameFilter, countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+							name.get(), countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
 					: workshopDAO.findByNameContainingAndLocationCountryIsInAndStartDateTimeAfterOrderByStartDateTimeAsc(
-							nameFilter, countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+							name.get(), countries.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
 		} else if (name.isPresent()) {
 			workshops = past
 					? workshopDAO.findByNameContainingAndStartDateTimeBeforeOrderByStartDateTimeDesc(
-							nameFilter, LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
+							name.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination)
 					: workshopDAO.findByNameContainingAndStartDateTimeAfterOrderByStartDateTimeAsc(
-							nameFilter, LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
+							name.get(), LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
 		} else if (countries.isPresent()) {
 			workshops = past
 					? workshopDAO.findByLocationCountryIsInAndStartDateTimeBeforeOrderByStartDateTimeDesc(

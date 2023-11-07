@@ -281,17 +281,15 @@ public class GroupController {
 		return returnList;
 	}
 	
-	@RequestMapping(value = "/search/{searchText}", method = RequestMethod.GET)
-	public List<GroupDTO> findByTerm(@PathVariable("searchText") String searchText) { 
-		List<GroupDTO> returnList = new ArrayList<>();
-		for (Group g : groupDAO.findByNameIgnoreCase(searchText)) {
-			GroupDTO gDTO = new GroupDTO();
-			gDTO.setIdGroup(g.getId());
-			gDTO.setName(g.getName());
-			returnList.add(gDTO);
-		}
-		
-		return returnList;
+	@GetMapping("/search/{searchText}")
+	public List<GroupDTO> findByTerm(@PathVariable("searchText") String searchText) {
+
+		return groupDAO.findByNameIgnoreCaseContaining(searchText).stream()
+				.map(group -> GroupDTO.builder()
+						.idGroup(group.getId())
+						.name(group.getName())
+						.build())
+				.toList();
 	}
 	
 	@RequestMapping(value = "/{idGroup}/{email}", method = RequestMethod.GET)

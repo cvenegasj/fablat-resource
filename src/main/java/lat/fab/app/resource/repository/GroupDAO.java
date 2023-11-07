@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface GroupDAO extends CrudRepository<Group, Integer>, ListPagingAndSortingRepository<Group, Integer> {
 
-	List<Group> findByNameIgnoreCase(String term);
+	List<Group> findByNameIgnoreCaseContaining(String term);
 	
 	List<Group> findAllByOrderByCreationDateTimeAsc();
 
