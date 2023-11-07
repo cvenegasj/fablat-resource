@@ -242,7 +242,7 @@ public class FabberController {
 
 	private void addNewFieldsToFabberDto(FabberDTO fabberDTO, List<GroupMember> groupMembers,
 										 Optional<Integer> workshopsCount, Optional<Integer> eventsCount) {
-		List<GroupLandingDto2> groupLandingDtos = groupMembers.stream()
+		List<GroupLandingDto2> groupLandingDtos = groupMembers.stream().parallel()
 				.map(groupMember -> {
 					String groupImgUrl = StringUtils.hasText(groupMember.getGroup().getPhotoUrl())
 							? "http://res.cloudinary.com/dymje6shc/image/upload/w_220,h_165,c_fit/"
@@ -252,6 +252,7 @@ public class FabberController {
 					return GroupLandingDto2.builder()
 							.id(groupMember.getGroup().getId())
 							.name(groupMember.getGroup().getName())
+							.membersCount(groupMemberDAO.countDistinctByGroupId(groupMember.getGroup().getId()))
 							.imgUrl(groupImgUrl)
 							.build();
 				})

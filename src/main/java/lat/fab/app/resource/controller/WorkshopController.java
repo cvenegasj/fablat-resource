@@ -212,7 +212,13 @@ public class WorkshopController {
 							LocalDateTime.now(ZoneId.of(Constants.LIMA_ZONE_ID)), pagination);
 		}
 
-		return workshops.map(this::convertToDTO);
+		return workshops.map(workshop -> {
+			WorkshopDTO dto = convertToDTO(workshop);
+			dto.setTutors(workshop.getWorkshopTutors().stream()
+					.map(this::convertToDTO)
+					.toList());
+			return dto;
+		});
 	}
 	
 	
@@ -290,8 +296,8 @@ public class WorkshopController {
 		wtDTO.setLastName(wt.getSubGroupMember().getGroupMember().getFabber().getLastName());
 		wtDTO.setEmail(wt.getSubGroupMember().getGroupMember().getFabber().getEmail());
 		wtDTO.setFabberId(wt.getSubGroupMember().getGroupMember().getFabber().getId());
+		wtDTO.setFabberAvatarUrl(wt.getSubGroupMember().getGroupMember().getFabber().getAvatarUrl());
 		
 		return wtDTO;
 	}
-
 }
