@@ -2,18 +2,13 @@ package lat.fab.app.resource.service;
 
 import lat.fab.app.resource.entities.EventType;
 import lat.fab.app.resource.entities.Fabber;
-import lat.fab.app.resource.repository.FabberDAO;
-import lat.fab.app.resource.repository.GroupMemberDAO;
-import lat.fab.app.resource.repository.SubGroupMemberDAO;
-import lat.fab.app.resource.repository.WorkshopTutorDAO;
+import lat.fab.app.resource.repository.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserStatsService {
 
@@ -21,13 +16,14 @@ public class UserStatsService {
     private final GroupMemberDAO groupMemberDAO;
     private final SubGroupMemberDAO subGroupMemberDAO;
     private final WorkshopTutorDAO workshopTutorDAO;
-
+    private final SubGroupDAO subGroupDAO;
+    private final WorkshopDAO workshopDAO;
 
     public Fabber updateFabberScores(Fabber user) {
         int coordinatorScore = computeFabberCoordinatorScore(user.getEmail());
         int collaboratorScore = computeFabberCollaboratorScore(user.getEmail());
         int replicatorScore = computeFabberReplicatorScore(user.getEmail());
-        int generalScore = coordinatorScore + collaboratorScore + replicatorScore;
+        int generalScore = computeFabberGeneralScore(user.getEmail());
 
         user.getFabberInfo().setScoreGeneral(generalScore);
         user.getFabberInfo().setScoreCoordinator(coordinatorScore);
@@ -60,4 +56,27 @@ public class UserStatsService {
         return workshopsAsTutor;
     }
 
+    /**
+     * G = set of groups as coordinator
+     * SG = set of subgroups of all groups in G
+     * EG = set of events of all subgroups in SG
+     * S = set of subgroups as coordinator
+     * ES = set of events of all subgroups in S
+     * E = set of events as creator
+     *
+     * @param email
+     * @return general score
+     */
+    private int computeFabberGeneralScore(String email) {
+        int G = groupMemberDAO.countByFabberEmailAndIsCoordinatorIs(email, true);
+        int SG = subGroupDAO.countDistinctByGroup_GroupMembers_Fabber_EmailAndGroup_GroupMembers_IsCoordinator(email, true);
+        int EG = workshopDAO.countDistinctBySubGroup_Group_GroupMembers_FabberEmailAndSubGroup_Group_GroupMembers_IsCoordinator(email, true);
+
+        int S = subGroupMemberDAO.countByGroupMember_Fabber_EmailAndIsCoordinatorIs(email, true);
+        int ES = workshopDAO.countDistinctBySubGroup_SubGroupMembers_GroupMember_Fabber_EmailAndSubGroup_SubGroupMembers_IsCoordinator(email, true);
+        int E = workshopTutorDAO.countBySubGroupMember_GroupMember_FabberEmail_AndWorkshopTypeIsIn(
+                email, List.of(EventType.WORKSHOP, EventType.CONFERENCE, EventType.OTHER));
+
+        return (1000 * G) + (50 * SG) + (2 * EG) + (150 * S) + (8 * ES) + (30 * E);
+    }
 }

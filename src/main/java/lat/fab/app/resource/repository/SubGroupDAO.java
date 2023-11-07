@@ -19,4 +19,6 @@ public interface SubGroupDAO extends CrudRepository<SubGroup, Integer> {
 
 	Integer countDistinctByGroupId(Integer idGroup);
 
+	Integer countDistinctByGroup_GroupMembers_Fabber_EmailAndGroup_GroupMembers_IsCoordinator(
+			String email, boolean isCoordinator);
 }

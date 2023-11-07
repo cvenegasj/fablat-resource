@@ -42,4 +42,10 @@ public interface WorkshopDAO extends CrudRepository<Workshop, Integer> {
 	Integer countDistinctBySubGroup_GroupId(Integer idGroup);
 
 	Integer countDistinctBySubGroup_GroupId_AndTypeIsIn(Integer idGroup, List<EventType> types);
+
+	Integer countDistinctBySubGroup_Group_GroupMembers_FabberEmailAndSubGroup_Group_GroupMembers_IsCoordinator(
+			String email, boolean isCoordinator);
+
+	Integer countDistinctBySubGroup_SubGroupMembers_GroupMember_Fabber_EmailAndSubGroup_SubGroupMembers_IsCoordinator(
+			String email, boolean isCoordinator);
 }
