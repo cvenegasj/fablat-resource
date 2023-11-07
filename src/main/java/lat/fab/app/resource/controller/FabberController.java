@@ -7,6 +7,7 @@ import lat.fab.app.resource.repository.FabberDAO;
 import lat.fab.app.resource.repository.GroupMemberDAO;
 import lat.fab.app.resource.repository.RoleDAO;
 import lat.fab.app.resource.repository.WorkshopTutorDAO;
+import lat.fab.app.resource.service.GroupStatsService;
 import lat.fab.app.resource.service.UserStatsService;
 import lat.fab.app.resource.util.Constants;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class FabberController {
 	private final WorkshopTutorDAO workshopTutorDAO;
 	private final RoleDAO roleDAO;
 	private final UserStatsService userStatsService;
+	private final GroupStatsService groupStatsService;
 
 	@PostMapping("/createOrUpdateUser")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -252,6 +254,7 @@ public class FabberController {
 					return GroupLandingDto2.builder()
 							.id(groupMember.getGroup().getId())
 							.name(groupMember.getGroup().getName())
+							.score(groupStatsService.computeGroupScore(groupMember.getGroup()))
 							.membersCount(groupMemberDAO.countDistinctByGroupId(groupMember.getGroup().getId()))
 							.imgUrl(groupImgUrl)
 							.build();

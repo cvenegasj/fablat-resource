@@ -22,6 +22,6 @@ public class GroupStatsService {
         int subgroupsCount = subGroupDAO.countDistinctByGroupId(group.getId());
         int eventsCount = workshopDAO.countDistinctBySubGroup_GroupId(group.getId());
 
-        return membersCount + subgroupsCount + eventsCount;
+        return (5 * membersCount) + (3 * subgroupsCount) + (eventsCount);
     }
 }
