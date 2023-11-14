@@ -3,8 +3,6 @@ package lat.fab.app.resource.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -57,13 +55,13 @@ public class SubGroup implements java.io.Serializable {
 	//@Fetch(FetchMode.JOIN)
 	private Set<SubGroupMember> subGroupMembers = new HashSet<>();
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "subGroup")
-	@Fetch(FetchMode.JOIN)
-	@OrderBy("date(startDateTime) asc")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "subGroup", orphanRemoval = true)
+//	@Fetch(FetchMode.JOIN)
+	@OrderBy("date(startDateTime) desc")
 	private Set<Workshop> workshops = new HashSet<>();
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "subGroup")
-	@Fetch(FetchMode.JOIN)
+//	@Fetch(FetchMode.JOIN)
 	private Set<ActivityLog> activities = new HashSet<>();
 
 	@Override

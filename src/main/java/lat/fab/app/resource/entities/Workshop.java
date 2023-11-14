@@ -3,8 +3,6 @@ package lat.fab.app.resource.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -62,7 +60,7 @@ public class Workshop implements java.io.Serializable {
 	@Column(name = "enabled", nullable = false)
 	private Boolean enabled;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "idLocation", nullable = false)
 	private Location location;
 
@@ -71,7 +69,31 @@ public class Workshop implements java.io.Serializable {
 	private SubGroup subGroup;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "workshop")
-	@Fetch(FetchMode.JOIN)
+//	@Fetch(FetchMode.JOIN)
 	private Set<WorkshopTutor> workshopTutors = new HashSet<>();
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Workshop other = (Workshop) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 }

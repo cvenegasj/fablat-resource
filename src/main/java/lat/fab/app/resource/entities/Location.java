@@ -2,8 +2,6 @@ package lat.fab.app.resource.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "Location")
@@ -33,7 +31,7 @@ public class Location implements java.io.Serializable {
 	@Column(name = "longitude")
 	private String longitude;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "location")
-	@Fetch(FetchMode.JOIN)
-	private Lab lab;
+//	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "location")
+//	@Fetch(FetchMode.JOIN)
+//	private Lab lab;
 }

@@ -3,11 +3,13 @@ package lat.fab.app.resource.controller;
 import lat.fab.app.resource.dto.WorkshopDTO;
 import lat.fab.app.resource.dto.WorkshopTutorDTO;
 import lat.fab.app.resource.entities.Location;
+import lat.fab.app.resource.entities.SubGroup;
 import lat.fab.app.resource.entities.Workshop;
 import lat.fab.app.resource.entities.WorkshopTutor;
 import lat.fab.app.resource.repository.*;
 import lat.fab.app.resource.util.Constants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/auth/workshops")
 @RequiredArgsConstructor
+@Slf4j
 public class WorkshopController {
 	private final DateTimeFormatter dateTimeFormatterIn = DateTimeFormatter.ofPattern("d-M-yyyy h:m a"); // for creation/update
 	private final DateTimeFormatter dateTimeFormatterCalendar = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss"); // for google calendar
@@ -108,7 +111,7 @@ public class WorkshopController {
         	location.setCountry(workshopDTO.getLocationCountry());
         	location.setLatitude(workshopDTO.getLocationLatitude());
         	location.setLongitude(workshopDTO.getLocationLongitude());
-        	locationDAO.save(location);
+//        	locationDAO.save(location);
         	workshop.setLocation(location);
         } else {
         	workshop.setLocation(locationDAO.findById(workshopDTO.getLocationId()).get());
@@ -153,9 +156,11 @@ public class WorkshopController {
 	
 	@DeleteMapping("/{idWorkshop}")
 	@ResponseStatus(HttpStatus.OK)
-	public void delete(@PathVariable("idWorkshop") Integer idWorkshop) {
+	public void delete(@PathVariable Integer idWorkshop) {
 		Workshop workshop = workshopDAO.findById(idWorkshop).get();
-		workshopDAO.delete(workshop);
+		SubGroup subGroup = workshop.getSubGroup();
+		subGroup.getWorkshops().remove(workshop);
+		subGroupDAO.save(subGroup);
 	}
 
 	@GetMapping(value = "/{idWorkshop}")
@@ -258,7 +263,7 @@ public class WorkshopController {
 				.locationCountry(workshop.getLocation().getCountry())
 				.locationLatitude(workshop.getLocation().getLatitude())
 				.locationLongitude(workshop.getLocation().getLongitude())
-				.labName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null)
+//				.labName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null)
 				.subGroupId(workshop.getSubGroup().getId())
 				.subGroupName(workshop.getSubGroup().getName())
 				.groupId(workshop.getSubGroup().getGroup().getId())

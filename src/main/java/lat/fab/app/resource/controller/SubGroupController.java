@@ -356,7 +356,7 @@ public class SubGroupController {
 		wDTO.setIsPaid(workshop.getIsPaid());
 		wDTO.setPrice(workshop.getPrice());
 		wDTO.setCurrency(workshop.getCurrency());
-		wDTO.setLabName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null);
+//		wDTO.setLabName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null);
 
 		return wDTO;
 	}

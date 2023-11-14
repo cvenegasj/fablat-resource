@@ -30,8 +30,8 @@ public class LocationController {
 			lDTO.setCountry(l.getCountry());
 			lDTO.setLatitude(l.getLatitude());
 			lDTO.setLongitude(l.getLongitude());
-			lDTO.setLabId(l.getLab() != null ? l.getLab().getId() : null);
-			lDTO.setLabName(l.getLab() != null ? l.getLab().getName() : null);
+//			lDTO.setLabId(l.getLab() != null ? l.getLab().getId() : null);
+//			lDTO.setLabName(l.getLab() != null ? l.getLab().getName() : null);
 			
 			String address1 = (lDTO.getAddress1() != null && !lDTO.getAddress1().trim().equals("")) ? lDTO.getAddress1().trim() + ", " : "";
 			String city = (lDTO.getCity() != null && !lDTO.getCity().trim().equals("")) ? lDTO.getCity().trim() + ", " : "";

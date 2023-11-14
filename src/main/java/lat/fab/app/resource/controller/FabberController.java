@@ -86,13 +86,6 @@ public class FabberController {
             return fabberDTO;
         }
 	}
-	
-//	@GetMapping("/me/general/{email}")
-//	@ResponseStatus(HttpStatus.OK)
-//	public FabberDTO getMyGeneralInfo(@PathVariable String email) {
-//		Fabber user = fabberDAO.findByEmail(email).get();
-//		return convertToDTO(userUpdated);
-//	}
 		
 	@GetMapping("/me/profile/{email}")
 	@ResponseStatus(HttpStatus.OK)

@@ -84,7 +84,7 @@ public class WorkshopPublicController {
 		wDTO.setLocationCountry(workshop.getLocation().getCountry());
 		wDTO.setLocationLatitude(workshop.getLocation().getLatitude());
 		wDTO.setLocationLongitude(workshop.getLocation().getLongitude());
-		wDTO.setLabName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null);
+//		wDTO.setLabName(workshop.getLocation().getLab() != null ? workshop.getLocation().getLab().getName() : null);
 		wDTO.setSubGroupId(workshop.getSubGroup().getId());
 		wDTO.setSubGroupName(workshop.getSubGroup().getName());
 		wDTO.setGroupId(workshop.getSubGroup().getGroup().getId());
